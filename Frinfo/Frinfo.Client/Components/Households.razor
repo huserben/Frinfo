@@ -1,0 +1,32 @@
+﻿@inherits HouseholdsBase
+
+<h3>Households</h3>
+
+@if (!Households.Any())
+{
+   <p><em>Loading...</em></p>
+}
+else
+{
+   <table class="table">
+      <thead>
+         <tr>
+            <th>Household</th>
+            <th>Code</th>
+            <th></th>
+         </tr>
+      </thead>
+      <tbody>
+
+         @foreach (var household in Households)
+         {
+            <tr>
+               <td>@household.Name</td>
+               <td>@household.HouseholdCode</td>
+               <td></td>
+            </tr>
+         }
+      </tbody>
+   </table>
+}
+
