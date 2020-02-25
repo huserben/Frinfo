@@ -5,8 +5,8 @@ namespace Frinfo.API.Model
 {
    public interface IHouseholdRepository
    {
-      IEnumerable<Household> GetAllHouseholds();
-
       Household GetHouseholdById(int householdId);
+
+      Household GetHouseholdByCode(string code);
    }
 }

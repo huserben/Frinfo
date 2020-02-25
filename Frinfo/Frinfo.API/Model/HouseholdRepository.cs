@@ -14,9 +14,9 @@ namespace Frinfo.API.Model
          this.dbContext = dbContext;
       }
 
-      public IEnumerable<Household> GetAllHouseholds()
+      public Household GetHouseholdByCode(string code)
       {
-         return dbContext.Households;
+         return dbContext.Households.Include(h => h.Fridges).FirstOrDefault(x => x.HouseholdCode == code);
       }
 
       public Household GetHouseholdById(int householdId)

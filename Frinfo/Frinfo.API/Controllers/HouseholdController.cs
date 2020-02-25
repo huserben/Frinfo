@@ -15,9 +15,21 @@ namespace Frinfo.API.Controllers
       }
 
       [HttpGet]
-      public IActionResult GetHouseholds()
+      public IActionResult GetHouseholdByCode(string code)
       {
-         return Ok(householdRepistory.GetAllHouseholds());
+         if (string.IsNullOrEmpty(code))
+         {
+            return BadRequest("Code not supplied");
+         }
+
+         var household = householdRepistory.GetHouseholdByCode(code);
+
+         if (household != null)
+         {
+            return Ok(household);
+         }
+
+         return NoContent();
       }
 
       [HttpGet("{id}")]

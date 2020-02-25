@@ -6,8 +6,8 @@ namespace Frinfo.Client.Services
 {
    public interface IHouseholdDataService
    {
-      Task<IEnumerable<Household>> GetAllHouseholds();
-
       Task<Household> GetHouseholdById(int householdId);
+
+      Task<Household> GetHouseholdByCode(string householdCode);
    }
 }

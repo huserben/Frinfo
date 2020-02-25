@@ -11,12 +11,17 @@ namespace Frinfo.Client.Components
       [Inject]
       public IHouseholdDataService HouseholdDataService { get; set; }
 
-      public List<Household> Households { get; set; } = new List<Household>();
+      public Household Household { get; set; }
 
-      protected override async Task OnInitializedAsync()
+      public string HouseholdCode { get; set; }
+
+      public bool SearchedForCode { get; set; }
+
+      protected async Task HandleSubmit()
       {
-         var households = await HouseholdDataService.GetAllHouseholds();
-         Households.AddRange(households);
+         Household = await HouseholdDataService.GetHouseholdByCode(HouseholdCode);
+         SearchedForCode = true;
+         StateHasChanged();
       }
    }
 }

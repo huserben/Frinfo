@@ -1,32 +1,24 @@
 ﻿@inherits HouseholdsBase
 
-<h3>Households</h3>
+<h3>Find your Household</h3>
 
-@if (!Households.Any())
+<div>
+   <form @onsubmit="HandleSubmit">
+      <input type="text" id="householdcode" @bind-value="HouseholdCode" placeholder="Enter Household Code"></input>
+      <button type="submit">Search</button>
+   </form>
+</div>
+
+@if (SearchedForCode)
 {
-   <p><em>Loading...</em></p>
+<div>
+   @if (Household == null)
+   {
+      <a>No Household found with that code</a>
+   }
+   else
+   {
+      <a>Success</a>
+   }
+</div>
 }
-else
-{
-   <table class="table">
-      <thead>
-         <tr>
-            <th>Household</th>
-            <th>Code</th>
-            <th></th>
-         </tr>
-      </thead>
-      <tbody>
-
-         @foreach (var household in Households)
-         {
-            <tr>
-               <td>@household.Name</td>
-               <td>@household.HouseholdCode</td>
-               <td></td>
-            </tr>
-         }
-      </tbody>
-   </table>
-}
-
