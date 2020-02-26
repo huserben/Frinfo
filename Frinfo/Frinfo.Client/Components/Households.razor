@@ -1,10 +1,18 @@
 ﻿@inherits HouseholdsBase
 
+<h3>Add new Household</h3>
+<div>
+   <form @onsubmit="OnAddNewHousehold">
+      <input type="text" id="householdName" @bind-value="NewHouseholdName" placeholder="Enter new Household Name" />
+      <button type="submit">Add</button>
+   </form>
+</div>
+
 <h3>Find your Household</h3>
 
 <div>
-   <form @onsubmit="HandleSubmit">
-      <input type="text" id="householdcode" @bind-value="HouseholdCode" placeholder="Enter Household Code"></input>
+   <form @onsubmit="OnSearchForCode">
+      <input type="text" id="householdcode" @bind-value="HouseholdCode" placeholder="Enter Household Code" />
       <button type="submit">Search</button>
    </form>
 </div>
@@ -29,17 +37,20 @@
             <th>Household</th>
             <th>Code</th>
             <th></th>
+            <th></th>
          </tr>
       </thead>
       <tbody>
 
          @foreach (var household in RecentHouseholds)
          {
-            <tr>
-               <td>@household.Name</td>
-               <td>@household.HouseholdCode</td>
-               <td><button @onclick="@(x => RemoveFromRecentList(household))">Remove From Recent List</button></td>
-            </tr>
+         <tr>
+            <td>@household.Name</td>
+            <td>@household.HouseholdCode</td>
+            <td><button @onclick="@(x => NavigateToHousehold(household.HouseholdId))">Details</button></td>
+            <td><button @onclick="@(x => RemoveFromRecentList(household))">Remove From Recent List</button></td>
+            <td><button @onclick="@(x => DeleteHousehold(household))">Delete Household</button></td>
+         </tr>
          }
       </tbody>
    </table>

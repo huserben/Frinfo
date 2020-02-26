@@ -37,5 +37,30 @@ namespace Frinfo.Client.Services
 
          return null;
       }
+
+      public async Task<bool> DeleteHousehold(int householdId)
+      {
+         var response = await httpClient.DeleteAsync($"api/household/{householdId}");
+
+         return response.IsSuccessStatusCode;
+      }
+
+      public async Task<Household> AddNewHousehold(string newHouseholdName)
+      {
+         var parameters = new Dictionary<string, string> { { "name", newHouseholdName } };
+         var encodedContent = new FormUrlEncodedContent(parameters);
+
+         var response = await httpClient.PostAsync($"api/household?name={newHouseholdName}", null);
+
+         if (response.IsSuccessStatusCode)
+         {
+            using (var stream = await response.Content.ReadAsStreamAsync())
+            {
+               return await JsonSerializer.DeserializeAsync<Household>(stream, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            }
+         }
+
+         return null;
+      }
    }
 }

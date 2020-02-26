@@ -1,5 +1,5 @@
 ﻿using Frinfo.Shared;
-using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Frinfo.API.Model
 {
@@ -8,5 +8,9 @@ namespace Frinfo.API.Model
       Household GetHouseholdById(int householdId);
 
       Household GetHouseholdByCode(string code);
+
+      Task<bool> DeleteHouseholdById(int id);
+
+      Task<Household> AddNewHousehold(string name);
    }
 }

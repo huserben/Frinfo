@@ -18,6 +18,11 @@ namespace Frinfo.Client.Components
       [Inject]
       public ILocalStorageService LocalStorageService { get; set; }
 
+      [Inject]
+      public NavigationManager NavigationManager { get; set; }
+
+      public string NewHouseholdName { get; set; }
+
       public string HouseholdCode { get; set; }
 
       public bool SearchedForCode { get; set; }
@@ -31,8 +36,31 @@ namespace Frinfo.Client.Components
          await FetchRecentHouseholds();
       }
 
-      protected async Task HandleSubmit()
+      protected async Task OnAddNewHousehold()
       {
+         if (string.IsNullOrEmpty(NewHouseholdName))
+         {
+            return;
+         }
+
+         var newHousehold = await HouseholdDataService.AddNewHousehold(NewHouseholdName);
+
+         if (newHousehold != null)
+         {
+            RecentHouseholds.Insert(0, newHousehold);
+            await UpdateRecentList();
+
+            NavigateToHousehold(newHousehold.HouseholdId);
+         }
+      }
+
+      protected async Task OnSearchForCode()
+      {
+         if (RecentHouseholds.Any(h => h.HouseholdCode == HouseholdCode))
+         {
+            return;
+         }
+
          var household = await HouseholdDataService.GetHouseholdByCode(HouseholdCode);
          SearchedForCode = true;
          SearchSuccessful = household != null;
@@ -40,6 +68,24 @@ namespace Frinfo.Client.Components
          if (SearchSuccessful)
          {
             RecentHouseholds.Insert(0, household);
+            await UpdateRecentList();
+         }
+
+         StateHasChanged();
+      }
+
+      protected void NavigateToHousehold(int householdId)
+      {
+         NavigationManager.NavigateTo($"/household/{householdId}");
+      }
+
+      protected async Task DeleteHousehold(Household household)
+      {
+         RecentHouseholds.Remove(household);
+         var deleteSuccessful = await HouseholdDataService.DeleteHousehold(household.HouseholdId);
+
+         if (deleteSuccessful)
+         {
             await UpdateRecentList();
          }
 

@@ -9,5 +9,9 @@ namespace Frinfo.Client.Services
       Task<Household> GetHouseholdById(int householdId);
 
       Task<Household> GetHouseholdByCode(string householdCode);
+
+      Task<bool> DeleteHousehold(int householdId);
+
+      Task<Household> AddNewHousehold(string newHouseholdName);
    }
 }

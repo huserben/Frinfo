@@ -24,10 +24,7 @@ namespace Frinfo.API
          services.AddDbContext<AppDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
          services.AddScoped<IHouseholdRepository, HouseholdRepository>();
 
-         services.AddCors(options =>
-         {
-            options.AddPolicy("Open", builder => builder.AllowAnyOrigin().AllowAnyHeader());
-         });
+         services.AddCors();
 
          services.AddControllers()
             .AddNewtonsoftJson(
@@ -49,7 +46,7 @@ namespace Frinfo.API
 
          app.UseAuthorization();
 
-         app.UseCors(policy => policy.AllowAnyOrigin());
+         app.UseCors(policy => policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod().Build());
 
          app.UseEndpoints(endpoints =>
          {

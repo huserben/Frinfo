@@ -1,4 +1,5 @@
-﻿using Frinfo.API.Model;
+﻿using System.Threading.Tasks;
+using Frinfo.API.Model;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Frinfo.API.Controllers
@@ -36,6 +37,25 @@ namespace Frinfo.API.Controllers
       public IActionResult GetHouseholdById(int id)
       {
          return Ok(householdRepistory.GetHouseholdById(id));
+      }
+
+      [HttpDelete("{id}")]
+      public async Task<IActionResult> DeleteHouseholdById(int id)
+      {
+         if (await householdRepistory.DeleteHouseholdById(id))
+         {
+            return Ok();
+         }
+
+         return BadRequest();
+      }
+
+      [HttpPost]
+      public async Task<IActionResult> AddNewHousehold(string name)
+      {
+         var newHousehold = await householdRepistory.AddNewHousehold(name);
+
+         return Created($"api/household/{newHousehold.HouseholdId}", newHousehold);
       }
    }
 }

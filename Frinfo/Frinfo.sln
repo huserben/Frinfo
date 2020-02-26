@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Frinfo.Client", "Frinfo.Cli
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Frinfo.API", "Frinfo.API\Frinfo.API.csproj", "{AF65489F-845B-4C93-95A9-E17E1BF22B24}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Frinfo.Shared", "Frinfo.Shared\Frinfo.Shared.csproj", "{475A44ED-1BB4-4EE3-92B5-341254AEEF2A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Frinfo.Shared", "Frinfo.Shared\Frinfo.Shared.csproj", "{475A44ED-1BB4-4EE3-92B5-341254AEEF2A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
