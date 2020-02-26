@@ -12,7 +12,7 @@
 @if (SearchedForCode)
 {
 <div>
-   @if (Household == null)
+   @if (!SearchSuccessful)
    {
       <a>No Household found with that code</a>
    }
@@ -22,3 +22,25 @@
    }
 </div>
 }
+<div>
+   <table class="table">
+      <thead>
+         <tr>
+            <th>Household</th>
+            <th>Code</th>
+            <th></th>
+         </tr>
+      </thead>
+      <tbody>
+
+         @foreach (var household in RecentHouseholds)
+         {
+            <tr>
+               <td>@household.Name</td>
+               <td>@household.HouseholdCode</td>
+               <td><button @onclick="@(x => RemoveFromRecentList(household))">Remove From Recent List</button></td>
+            </tr>
+         }
+      </tbody>
+   </table>
+</div>

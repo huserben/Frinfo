@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Blazor.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Frinfo.Client.Services;
@@ -20,6 +21,8 @@ namespace Frinfo
       private static void ConfigureServices(IServiceCollection services)
       {
          services.AddScoped<IHouseholdDataService, HouseholdDataService>();
+
+         services.AddBlazoredLocalStorage();
       }
    }
 }
