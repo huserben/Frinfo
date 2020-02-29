@@ -1,7 +1,4 @@
 ﻿using Frinfo.Shared;
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -10,11 +7,10 @@ namespace Frinfo.Client.Services
 {
    public class HouseholdDataService : IHouseholdDataService
    {
-      private readonly HttpClient httpClient;
+      private readonly IHttpClient httpClient;
 
-      public HouseholdDataService(HttpClient httpClient)
+      public HouseholdDataService(IHttpClient httpClient)
       {
-         httpClient.BaseAddress = new Uri("https://localhost:44304");
          this.httpClient = httpClient;
       }
 

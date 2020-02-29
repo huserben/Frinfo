@@ -76,7 +76,7 @@ namespace Frinfo.Client.Components
 
       protected void NavigateToHousehold(int householdId)
       {
-         NavigationManager.NavigateTo($"/household/{householdId}");
+         NavigationManager.NavigateTo($"household/{householdId}");
       }
 
       protected async Task DeleteHousehold(Household household)

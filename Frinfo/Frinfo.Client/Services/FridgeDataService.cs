@@ -1,6 +1,4 @@
-﻿using System;
-using System.Net.Http;
-using Frinfo.Shared;
+﻿using Frinfo.Shared;
 using System.Threading.Tasks;
 using System.Text.Json;
 
@@ -8,11 +6,10 @@ namespace Frinfo.Client.Services
 {
    public class FridgeDataService : IFridgeDataService
    {
-      private HttpClient httpClient;
+      private readonly IHttpClient httpClient;
 
-      public FridgeDataService(HttpClient httpClient)
+      public FridgeDataService(IHttpClient httpClient)
       {
-         httpClient.BaseAddress = new Uri("https://localhost:44304");
          this.httpClient = httpClient;
       }
 
