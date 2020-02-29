@@ -46,6 +46,19 @@ namespace Frinfo.API.Controllers
          return Ok(household);
       }
 
+      [HttpGet("{householdId}/fridge/{fridgeId}")]
+      public IActionResult GetFridgeById(int householdId, int fridgeId)
+      {
+         var fridge = householdRepistory.GetFridgeById(householdId, fridgeId);
+
+         if (fridge == null)
+         {
+            return NotFound(fridgeId);
+         }
+
+         return Ok(fridge);
+      }
+
       [HttpDelete("{id}")]
       public async Task<IActionResult> DeleteHouseholdById(int id)
       {
@@ -82,6 +95,17 @@ namespace Frinfo.API.Controllers
       public async Task<IActionResult> DeleteHouseholdById(int householdId, int fridgeId)
       {
          if (await householdRepistory.DeleteFridgeById(householdId, fridgeId))
+         {
+            return Ok();
+         }
+
+         return BadRequest();
+      }
+
+      [HttpDelete("{householdId}/fridge/{fridgeId}/item/{fridgeItemId}")]
+      public async Task<IActionResult> DeleteHouseholdById(int householdId, int fridgeId, int fridgeItemId)
+      {
+         if (await householdRepistory.DeleteFridgeItemById(householdId, fridgeId, fridgeItemId))
          {
             return Ok();
          }

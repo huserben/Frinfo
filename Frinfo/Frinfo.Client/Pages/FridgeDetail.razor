@@ -1,0 +1,44 @@
+﻿@page "/household/{HouseholdId}/fridge/{FridgeId}"
+@inherits FridgeDetailBase
+
+<h3>Add new Item</h3>
+<div>
+   @*<form @onsubmit="OnAddNewFridge">
+      <input type="text" id="householdName" @bind-value="NewFridgeName" placeholder="Enter new Fridge Name" />
+      <button type="submit">Add</button>
+   </form>*@
+</div>
+
+@if (Fridge == null)
+{
+   <a>Loading...</a>
+}
+else
+{
+   <h3>@Fridge.Name Details</h3>
+   
+      <div>
+         <table class="table">
+            <thead>
+               <tr>
+                  <th>Fridge</th>
+                  <th>ExpirationDate</th>
+                  <th>Image</th>
+                  <th></th>
+               </tr>
+            </thead>
+            <tbody>
+
+               @foreach (var item in FridgeItems)
+               {
+                  <tr>
+                     <td>@item.Name</td>
+                     <td>@item.ExpirationDate</td>
+                     <td></td>
+                     <td><button @onclick="@(x => DeleteFridgeItem(item))">Delete Fridge</button></td>
+                  </tr>
+               }
+            </tbody>
+         </table>
+      </div>
+}

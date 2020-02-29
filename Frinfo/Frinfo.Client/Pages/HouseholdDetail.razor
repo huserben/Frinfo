@@ -1,10 +1,10 @@
 ﻿@page "/household/{HouseholdId}"
 @inherits HouseholdDetailBase
 
-<h3>Add new Household</h3>
+<h3>Add new Fridge</h3>
 <div>
    <form @onsubmit="OnAddNewFridge">
-      <input type="text" id="householdName" @bind-value="NewFridgeName" placeholder="Enter new Fridge Name" />
+      <input type="text" id="fridgeName" @bind-value="NewFridgeName" placeholder="Enter new Fridge Name" />
       <button type="submit">Add</button>
    </form>
 </div>

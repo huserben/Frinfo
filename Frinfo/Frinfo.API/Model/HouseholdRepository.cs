@@ -51,7 +51,7 @@ namespace Frinfo.API.Model
             codeIsUnique = GetHouseholdByCode(code) == null;
          }
 
-         var newHousehold = new Household {HouseholdCode = code, Name = name};
+         var newHousehold = new Household { HouseholdCode = code, Name = name };
          dbContext.Households.Add(newHousehold);
 
          await dbContext.SaveChangesAsync();
@@ -84,7 +84,7 @@ namespace Frinfo.API.Model
 
          if (household != null)
          {
-            var fridge = new Fridge {Name = name, Items = new List<FridgeItem>() };
+            var fridge = new Fridge { Name = name, Items = new List<FridgeItem>() };
             household.Fridges.Add(fridge);
 
             await dbContext.SaveChangesAsync();
@@ -95,9 +95,45 @@ namespace Frinfo.API.Model
          return null;
       }
 
+      public Fridge GetFridgeById(int householdId, int fridgeId)
+      {
+         var household = GetHouseholdById(householdId);
+
+         if (household != null)
+         {
+            var fridge = household.Fridges.FirstOrDefault(f => f.FridgeId == fridgeId);
+            return fridge;
+         }
+
+         return null;
+      }
+
+      public async Task<bool> DeleteFridgeItemById(int householdId, int fridgeId, int fridgeItemId)
+      {
+         var household = GetHouseholdById(householdId);
+         if (household != null)
+         {
+            var fridge = household.Fridges.FirstOrDefault(f => f.FridgeId == fridgeId);
+            if (fridge != null)
+            {
+               var itemToRemove = fridge.Items.FirstOrDefault(i => i.FridgeItemId == fridgeItemId);
+
+               if (itemToRemove != null)
+               {
+                  fridge.Items.Remove(itemToRemove);
+                  await dbContext.SaveChangesAsync();
+
+                  return true;
+               }
+            }
+         }
+
+         return false;
+      }
+
       public Household GetHouseholdById(int householdId)
       {
-         return dbContext.Households.Include(h => h.Fridges).FirstOrDefault(x => x.HouseholdId == householdId);
+         return dbContext.Households.Include(h => h.Fridges).ThenInclude(f => f.Items).FirstOrDefault(x => x.HouseholdId == householdId);
       }
 
       private static string GenerateRandomString(int length)
