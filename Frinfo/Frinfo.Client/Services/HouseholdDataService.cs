@@ -20,8 +20,16 @@ namespace Frinfo.Client.Services
 
       public async Task<Household> GetHouseholdById(int householdId)
       {
-         var household = await httpClient.GetStreamAsync($"api/household/{householdId}");
-         return await JsonSerializer.DeserializeAsync<Household>(household, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+         var response = await httpClient.GetAsync($"api/household/{householdId}", HttpCompletionOption.ResponseHeadersRead);
+         if (response.IsSuccessStatusCode)
+         {
+            using (var stream = await response.Content.ReadAsStreamAsync())
+            {
+               return await JsonSerializer.DeserializeAsync<Household>(stream,  new JsonSerializerOptions {PropertyNameCaseInsensitive = true});
+            }
+         }
+
+         return null;
       }
 
       public async Task<Household> GetHouseholdByCode(string householdCode)
@@ -47,9 +55,6 @@ namespace Frinfo.Client.Services
 
       public async Task<Household> AddNewHousehold(string newHouseholdName)
       {
-         var parameters = new Dictionary<string, string> { { "name", newHouseholdName } };
-         var encodedContent = new FormUrlEncodedContent(parameters);
-
          var response = await httpClient.PostAsync($"api/household?name={newHouseholdName}", null);
 
          if (response.IsSuccessStatusCode)

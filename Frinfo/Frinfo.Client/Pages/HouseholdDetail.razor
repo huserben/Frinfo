@@ -1,6 +1,14 @@
 ﻿@page "/household/{HouseholdId}"
 @inherits HouseholdDetailBase
 
+<h3>Add new Household</h3>
+<div>
+   <form @onsubmit="OnAddNewFridge">
+      <input type="text" id="householdName" @bind-value="NewFridgeName" placeholder="Enter new Fridge Name" />
+      <button type="submit">Add</button>
+   </form>
+</div>
+
 @if (Household == null)
 {
    <a>Loading...</a>
@@ -8,6 +16,27 @@
 else
 {
    <h3>@Household.Name Details</h3>
-
    
+      <div>
+         <table class="table">
+            <thead>
+               <tr>
+                  <th>Fridge</th>
+                  <th></th>
+                  <th></th>
+               </tr>
+            </thead>
+            <tbody>
+
+               @foreach (var fridge in Fridges)
+               {
+                  <tr>
+                     <td>@fridge.Name</td>
+                     <td><button @onclick="@(x => NavigateToFridge(fridge.FridgeId))">Details</button></td>
+                     <td><button @onclick="@(x => DeleteFridge(fridge))">Delete Fridge</button></td>
+                  </tr>
+               }
+            </tbody>
+         </table>
+      </div>
 }

@@ -21,6 +21,7 @@ namespace Frinfo
       private static void ConfigureServices(IServiceCollection services)
       {
          services.AddScoped<IHouseholdDataService, HouseholdDataService>();
+         services.AddScoped<IFridgeDataService, FridgeDataService>();
 
          services.AddBlazoredLocalStorage();
       }

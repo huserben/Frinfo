@@ -119,7 +119,11 @@ namespace Frinfo.Client.Components
             foreach (var householdId in recentHouseholds)
             {
                var recentHousehold = await HouseholdDataService.GetHouseholdById(householdId);
-               RecentHouseholds.Add(recentHousehold);
+
+               if (recentHousehold != null)
+               {
+                  RecentHouseholds.Add(recentHousehold);
+               }
             }
          }
       }

@@ -59,9 +59,45 @@ namespace Frinfo.API.Model
          return newHousehold;
       }
 
+      public async Task<bool> DeleteFridgeById(int householdId, int fridgeId)
+      {
+         var household = GetHouseholdById(householdId);
+         if (household != null)
+         {
+            var fridgeToRemove = household.Fridges.FirstOrDefault(f => f.FridgeId == fridgeId);
+            if (fridgeToRemove != null)
+            {
+               household.Fridges.Remove(fridgeToRemove);
+
+               await dbContext.SaveChangesAsync();
+
+               return true;
+            }
+         }
+
+         return false;
+      }
+
+      public async Task<Fridge> AddFridge(int householdId, string name)
+      {
+         var household = GetHouseholdById(householdId);
+
+         if (household != null)
+         {
+            var fridge = new Fridge {Name = name, Items = new List<FridgeItem>() };
+            household.Fridges.Add(fridge);
+
+            await dbContext.SaveChangesAsync();
+
+            return fridge;
+         }
+
+         return null;
+      }
+
       public Household GetHouseholdById(int householdId)
       {
-         return dbContext.Households.Include(h => h.Fridges).Single(x => x.HouseholdId == householdId);
+         return dbContext.Households.Include(h => h.Fridges).FirstOrDefault(x => x.HouseholdId == householdId);
       }
 
       private static string GenerateRandomString(int length)
