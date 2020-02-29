@@ -17,5 +17,18 @@ namespace Frinfo.Shared
       public DateTime? ExpirationDate { get; set; }
 
       public byte[] ItemImage { get; set; }
+
+      public string ItemImageBase64
+      {
+         get
+         {
+            if (ItemImage == null)
+            {
+               return string.Empty;
+            }
+
+            return $"data:image;base64,{Convert.ToBase64String(ItemImage)}";
+         }
+      }
    }
 }

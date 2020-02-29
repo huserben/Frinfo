@@ -1,12 +1,25 @@
 ﻿@page "/household/{HouseholdId}/fridge/{FridgeId}"
+@using Frinfo.Shared
 @inherits FridgeDetailBase
 
 <h3>Add new Item</h3>
 <div>
-   @*<form @onsubmit="OnAddNewFridge">
-      <input type="text" id="householdName" @bind-value="NewFridgeName" placeholder="Enter new Fridge Name" />
+   <EditForm Model="@FridgeItem" OnValidSubmit="@AddFridgeItem">
+      <div>
+         <label for="itemName">Item Name:</label>
+         <InputText id="itemName" @bind-Value="@FridgeItem.Name" placeholder="Enter Item Name" />
+      </div>
+      <div>
+         <label for="expirationDate">Expiration Date:</label>
+         <InputDate TValue="System.Nullable<System.DateTime>" id="expirationDate" @bind-Value="@FridgeItem.ExpirationDate" placeholder="Enter Expiry date" />
+      </div>
+      <div>
+         <label for="image">Image</label>
+         <input id="image" type="file" @ref=inputTypeFileElement />
+      </div>
+
       <button type="submit">Add</button>
-   </form>*@
+   </EditForm>
 </div>
 
 @if (Fridge == null)
@@ -16,29 +29,29 @@
 else
 {
    <h3>@Fridge.Name Details</h3>
-   
-      <div>
-         <table class="table">
-            <thead>
-               <tr>
-                  <th>Fridge</th>
-                  <th>ExpirationDate</th>
-                  <th>Image</th>
-                  <th></th>
-               </tr>
-            </thead>
-            <tbody>
 
-               @foreach (var item in FridgeItems)
-               {
-                  <tr>
-                     <td>@item.Name</td>
-                     <td>@item.ExpirationDate</td>
-                     <td></td>
-                     <td><button @onclick="@(x => DeleteFridgeItem(item))">Delete Fridge</button></td>
-                  </tr>
-               }
-            </tbody>
-         </table>
-      </div>
+   <div>
+      <table class="table">
+         <thead>
+            <tr>
+               <th>Fridge</th>
+               <th>ExpirationDate</th>
+               <th>Image</th>
+               <th></th>
+            </tr>
+         </thead>
+         <tbody>
+
+            @foreach (var item in FridgeItems)
+            {
+               <tr>
+                  <td>@item.Name</td>
+                  <td>@item.ExpirationDate</td>
+                  <td><img src="@item.ItemImageBase64" height="50" width="50"/></td>
+                  <td><button @onclick="@(x => DeleteFridgeItem(item))">Delete Fridge</button></td>
+               </tr>
+            }
+         </tbody>
+      </table>
+   </div>
 }

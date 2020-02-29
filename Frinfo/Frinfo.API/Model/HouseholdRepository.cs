@@ -131,6 +131,14 @@ namespace Frinfo.API.Model
          return false;
       }
 
+      public async Task<FridgeItem> AddFridgeItem(Fridge fridge, FridgeItem newFridgeItem)
+      {
+         fridge.Items.Add(newFridgeItem);
+         await dbContext.SaveChangesAsync();
+
+         return newFridgeItem;
+      }
+
       public Household GetHouseholdById(int householdId)
       {
          return dbContext.Households.Include(h => h.Fridges).ThenInclude(f => f.Items).FirstOrDefault(x => x.HouseholdId == householdId);

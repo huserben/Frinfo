@@ -20,5 +20,7 @@ namespace Frinfo.API.Model
       Fridge GetFridgeById(int householdId, int fridgeId);
 
       Task<bool> DeleteFridgeItemById(int householdId, int fridgeId, int fridgeItemId);
+      
+      Task<FridgeItem> AddFridgeItem(Fridge fridge, FridgeItem newFridgeItem);
    }
 }

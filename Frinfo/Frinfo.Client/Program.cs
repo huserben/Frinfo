@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Blazor.FileReader;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Blazor.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,6 +26,9 @@ namespace Frinfo
          services.AddScoped<IHttpClient, FrinfoHttpClient>();
 
          services.AddBlazoredLocalStorage();
+         services.AddFileReaderService(options => {
+            options.UseWasmSharedBuffer = true;
+         });
       }
    }
 }

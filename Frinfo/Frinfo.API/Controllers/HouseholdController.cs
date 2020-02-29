@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Frinfo.API.Model;
+using Frinfo.Shared;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Frinfo.API.Controllers
@@ -86,6 +87,20 @@ namespace Frinfo.API.Controllers
          if (newFridge != null)
          {
             return Created($"api/household/fridge/{newFridge.FridgeId}", newFridge);
+         }
+
+         return BadRequest();
+      }
+
+      [HttpPost("{householdId}/fridge/{fridgeId}/item")]
+      public async Task<IActionResult> AddNewFridgeAsync(int householdId, int fridgeId, [FromBody]FridgeItem newFridgeItem)
+      {
+         var fridge = householdRepistory.GetFridgeById(householdId, fridgeId);
+         var fridgeItem = await householdRepistory.AddFridgeItem(fridge, newFridgeItem);
+
+         if (fridgeItem != null)
+         {
+            return Created($"api/household/fridge/{fridgeItem.FridgeId}", fridgeItem);
          }
 
          return BadRequest();

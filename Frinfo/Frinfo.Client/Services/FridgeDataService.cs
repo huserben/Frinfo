@@ -1,6 +1,8 @@
 ﻿using Frinfo.Shared;
 using System.Threading.Tasks;
 using System.Text.Json;
+using System.Net.Http;
+using System.Text;
 
 namespace Frinfo.Client.Services
 {
@@ -55,6 +57,23 @@ namespace Frinfo.Client.Services
          var response = await httpClient.DeleteAsync($"api/household/{householdId}/fridge/{fridgeId}/item/{fridgeItemId}");
 
          return response.IsSuccessStatusCode;
+      }
+
+      public async Task<FridgeItem> AddFridgeItem(int householdId, FridgeItem fridgeItem)
+      {
+         var fridgeJson = new StringContent(JsonSerializer.Serialize(fridgeItem), Encoding.UTF8, "application/json");
+
+         var response = await httpClient.PostAsync($"api/household/{householdId}/fridge/{fridgeItem.FridgeId}/item", fridgeJson);
+
+         if (response.IsSuccessStatusCode)
+         {
+            using (var stream = await response.Content.ReadAsStreamAsync())
+            {
+               return await JsonSerializer.DeserializeAsync<FridgeItem>(stream, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            }
+         }
+
+         return null;
       }
    }
 }

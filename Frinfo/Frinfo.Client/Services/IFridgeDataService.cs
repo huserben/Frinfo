@@ -12,5 +12,7 @@ namespace Frinfo.Client.Services
       Task<Fridge> GetFridgeById(int householdId, int fridgeId);
       
       Task<bool> DeleteFridgeItem(int householdId, int fridgeId, int fridgeItemId);
+
+      Task<FridgeItem> AddFridgeItem(int householdId, FridgeItem fridgeItem);
    }
 }
