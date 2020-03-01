@@ -1,5 +1,6 @@
 ﻿using Caliburn.Micro;
 using Frinfo.Client.Events;
+using Frinfo.Client.Services;
 using Microsoft.AspNetCore.Components;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,10 +12,14 @@ namespace Frinfo.Client.Pages
       [Inject]
       public IEventAggregator EventAggregator { get; set; }
 
+      [Inject]
+      public IHttpClient FrinfoHttpClient { get; set; }
+
       public bool IsOnline { get; private set; }
 
       protected override void OnInitialized()
       {
+         IsOnline = FrinfoHttpClient.IsOnline;
          EventAggregator.SubscribeOnPublishedThread(this);
       }
 

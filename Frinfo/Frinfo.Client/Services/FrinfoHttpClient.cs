@@ -12,7 +12,6 @@ namespace Frinfo.Client.Services
       private readonly HttpClient httpClient;
       private readonly IEventAggregator eventAggregator;
       private Timer healthTimer;
-      private bool isOnline;
 
       public FrinfoHttpClient(IEventAggregator eventAggregator)
       {
@@ -22,22 +21,7 @@ namespace Frinfo.Client.Services
          this.eventAggregator = eventAggregator;
       }
 
-      public bool IsOnline
-      {
-         get
-         {
-            return isOnline;
-         }
-
-         private set
-         {
-            if (value != isOnline)
-            {
-               isOnline = value;
-               eventAggregator.PublishOnBackgroundThreadAsync(new OnlineStateChangedEvent(value));
-            }
-         }
-      }
+      public bool IsOnline { get; private set; }
 
       private string ApiEndpoint
       {
@@ -88,8 +72,6 @@ namespace Frinfo.Client.Services
          {
             await Task.Delay(100);
          }
-
-         return;
       }
 
       private void SetHealthCheckTimer()
@@ -104,14 +86,26 @@ namespace Frinfo.Client.Services
       private async void OnCheckHealth(object sender, ElapsedEventArgs e)
       {
          IsCheckingOnlineStatus = true;
+         var isFirstCheck = false;
+
+
+         var isOnlineTask = UpdateOnlineStatus();
+
          if (healthTimer.Interval == 1)
          {
             healthTimer.Interval = 30000;
             healthTimer.AutoReset = true;
+            isFirstCheck = true;
          }
 
-         var isOnline = await UpdateOnlineStatus();
-         IsOnline = isOnline;
+         var currentOnlineState = await isOnlineTask;
+
+         if (currentOnlineState != IsOnline || isFirstCheck)
+         {
+            IsOnline = currentOnlineState;
+            await eventAggregator.PublishOnBackgroundThreadAsync(new OnlineStateChangedEvent(currentOnlineState));
+         }
+
          IsCheckingOnlineStatus = false;
       }
 

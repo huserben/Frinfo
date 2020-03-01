@@ -5,6 +5,8 @@ namespace Frinfo.Client.Services
 {
    public interface IHttpClient
    {
+      bool IsOnline { get; }
+
       Task<HttpResponseMessage> GetAsync(string requestUri, HttpCompletionOption completionOption);
 
       Task<HttpResponseMessage> DeleteAsync(string requestUri);
