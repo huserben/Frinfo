@@ -1,3 +1,4 @@
+using Frinfo.API.HealthChecks;
 using Frinfo.API.Model;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -30,6 +31,9 @@ namespace Frinfo.API
             .AddNewtonsoftJson(
             options =>
                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+
+         services.AddHealthChecks()
+            .AddCheck<BasicHealthCheck>("BasicHealthCheck");
       }
 
       // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -51,6 +55,7 @@ namespace Frinfo.API
          app.UseEndpoints(endpoints =>
          {
             endpoints.MapControllers();
+            endpoints.MapHealthChecks("/health");
          });
       }
    }
