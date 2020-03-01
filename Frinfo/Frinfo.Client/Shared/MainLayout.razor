@@ -1,7 +1,16 @@
 ﻿@inherits MainLayoutBase
+@using Blazored.Toast.Configuration
+
+<div>
+   <BlazoredToasts Position="ToastPosition.BottomRight"
+                   Timeout="10"
+                   SuccessClass="success-toast-override"
+                   SuccessIconClass="fa fa-thumbs-up"
+                   ErrorIconClass="fa fa-bug" />
+</div>
 
 <div class="sidebar">
-    <NavMenu />
+   <NavMenu />
 </div>
 
 <div class="main">

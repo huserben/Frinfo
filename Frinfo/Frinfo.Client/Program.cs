@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Blazor.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Frinfo.Client.Services;
 using Caliburn.Micro;
+using Blazored.Toast;
 
 namespace Frinfo
 {
@@ -22,18 +23,20 @@ namespace Frinfo
 
       private static void ConfigureServices(IServiceCollection services)
       {
+         services.AddBlazoredToast();
+
          services.AddScoped<IHouseholdDataService, HouseholdDataService>();
          services.AddScoped<IFridgeDataService, FridgeDataService>();
 
          services.AddSingleton<IHttpClient, FrinfoHttpClient>();
          services.AddScoped<ILocalStorageHouseholdService, LocalStorageHouseholdService>();
 
+         services.AddSingleton<IEventAggregator, EventAggregator>();
+
          services.AddBlazoredLocalStorage();
          services.AddFileReaderService(options => {
             options.UseWasmSharedBuffer = true;
          });
-
-         services.AddSingleton<IEventAggregator, EventAggregator>();
       }
    }
 }
