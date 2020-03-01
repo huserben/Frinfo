@@ -53,14 +53,7 @@ else
                      }
                   </td>
                   <td>
-                     @if (item.ItemImage == null || item.ItemImage.Length == 0)
-                     {
-                        <img src="images/french-fries.png" height="64" width="64" />
-                     }
-                     else
-                     {
-                        <img src="@GetImageSource(item)" height="64" width="64" />
-                     }
+                     <img src="@GetImageSource(item)" height="64" width="64" />
                   </td>
                   <td><button @onclick="@(x => DeleteFridgeItem(item))">Delete Fridge</button></td>
                </tr>

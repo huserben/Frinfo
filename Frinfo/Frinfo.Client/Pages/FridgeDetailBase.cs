@@ -66,9 +66,9 @@ namespace Frinfo.Client.Pages
 
       protected string GetImageSource(FridgeItem fridgeItem)
       {
-         if (fridgeItem.ItemImage == null)
+         if (fridgeItem.ItemImage == null || fridgeItem.ItemImage.Length == 0)
          {
-            return string.Empty;
+            return $"images/french-fries.png";
          }
 
          return $"data:image;base64,{Convert.ToBase64String(fridgeItem.ItemImage)}";
