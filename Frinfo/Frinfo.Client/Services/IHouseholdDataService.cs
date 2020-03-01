@@ -13,9 +13,5 @@ namespace Frinfo.Client.Services
       Task<bool> DeleteHousehold(int householdId);
 
       Task<Household> AddNewHousehold(string newHouseholdName);
-
-      Task<IEnumerable<Household>> GetLocallyStoredHouseholds();
-
-      Task RemoveHouseholdFromLocalStorage(int householdId);
    }
 }

@@ -1,20 +1,27 @@
-﻿using Frinfo.Client.Services;
+﻿using Caliburn.Micro;
+using Frinfo.Client.Events;
+using Frinfo.Client.Services;
 using Frinfo.Shared;
 using Microsoft.AspNetCore.Components;
-using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Frinfo.Client.Pages
 {
-   public class HouseholdDetailBase : ComponentBase
+   public class HouseholdDetailBase : ComponentBase, IHandle<OnlineStateChangedEvent>
    {
       [Inject]
       public IHouseholdDataService HouseholdDataService { get; set; }
 
       [Inject]
       public IFridgeDataService FridgeDataService { get; set; }
+
+      [Inject]
+      public IEventAggregator EventAggregator { get; set; }
+
+      [Inject]
+      public IHttpClient FrinfoHttpClient { get; set; }
 
       [Inject]
       public NavigationManager NavigationManager { get; set; }
@@ -28,10 +35,23 @@ namespace Frinfo.Client.Pages
 
       public List<Fridge> Fridges { get; } = new List<Fridge>();
 
+      public bool IsOffline { get; set; }
+                 
+      public Task HandleAsync(OnlineStateChangedEvent message, CancellationToken cancellationToken)
+      {
+         IsOffline = !message.IsOnline;
+
+         return Task.CompletedTask;
+      }
+
       protected override async Task OnInitializedAsync()
       {
          Household = await HouseholdDataService.GetHouseholdById(int.Parse(HouseholdId));
          Fridges.AddRange(Household.Fridges);
+
+         IsOffline = !FrinfoHttpClient.IsOnline;
+
+         EventAggregator.SubscribeOnPublishedThread(this);
       }
 
       protected void NavigateToFridge(int fridgeId)

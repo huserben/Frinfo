@@ -3,16 +3,20 @@ using System.Threading.Tasks;
 using System.Text.Json;
 using System.Net.Http;
 using System.Text;
+using Blazored.LocalStorage;
+using System.Linq;
 
 namespace Frinfo.Client.Services
 {
    public class FridgeDataService : IFridgeDataService
    {
       private readonly IHttpClient httpClient;
+      private readonly ILocalStorageHouseholdService localStorageHouseholdService;
 
-      public FridgeDataService(IHttpClient httpClient)
+      public FridgeDataService(IHttpClient httpClient, ILocalStorageHouseholdService localStorageHouseholdService)
       {
          this.httpClient = httpClient;
+         this.localStorageHouseholdService = localStorageHouseholdService;
       }
 
       public async Task<Fridge> AddNewFridge(int householdId,  string fridgeName)
@@ -23,7 +27,11 @@ namespace Frinfo.Client.Services
          {
             using (var stream = await response.Content.ReadAsStreamAsync())
             {
-               return await JsonSerializer.DeserializeAsync<Fridge>(stream, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+               var newFridge = await JsonSerializer.DeserializeAsync<Fridge>(stream, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+               await localStorageHouseholdService.AddOrUpdateFridge(newFridge);
+
+               return newFridge;
             }
          }
 
@@ -34,19 +42,32 @@ namespace Frinfo.Client.Services
       {
          var response = await httpClient.DeleteAsync($"api/household/{householdId}/fridge/{fridgeId}");
 
+         await localStorageHouseholdService.RemoveFridge(householdId, fridgeId);
+
          return response.IsSuccessStatusCode;
       }
 
       public async Task<Fridge> GetFridgeById(int householdId, int fridgeId)
       {
-         var response = await httpClient.GetAsync($"api/household/{householdId}/fridge/{fridgeId}", System.Net.Http.HttpCompletionOption.ResponseHeadersRead);
-
-         if (response.IsSuccessStatusCode)
+         if (httpClient.IsOnline)
          {
-            using (var stream = await response.Content.ReadAsStreamAsync())
+            var response = await httpClient.GetAsync($"api/household/{householdId}/fridge/{fridgeId}", System.Net.Http.HttpCompletionOption.ResponseHeadersRead);
+
+            if (response.IsSuccessStatusCode)
             {
-               return await JsonSerializer.DeserializeAsync<Fridge>(stream, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+               using (var stream = await response.Content.ReadAsStreamAsync())
+               {
+                  var fridge = await JsonSerializer.DeserializeAsync<Fridge>(stream, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                  await localStorageHouseholdService.AddOrUpdateFridge(fridge);
+
+                  return fridge;
+               }
             }
+         }
+         else
+         {
+            var fridge = await localStorageHouseholdService.GetLocallyStoredFridge(householdId, fridgeId);
+            return fridge;
          }
 
          return null;
@@ -55,6 +76,7 @@ namespace Frinfo.Client.Services
       public async Task<bool> DeleteFridgeItem(int householdId, int fridgeId, int fridgeItemId)
       {
          var response = await httpClient.DeleteAsync($"api/household/{householdId}/fridge/{fridgeId}/item/{fridgeItemId}");
+         await localStorageHouseholdService.RemoveFridgeItem(householdId, fridgeId, fridgeItemId);
 
          return response.IsSuccessStatusCode;
       }
@@ -69,7 +91,10 @@ namespace Frinfo.Client.Services
          {
             using (var stream = await response.Content.ReadAsStreamAsync())
             {
-               return await JsonSerializer.DeserializeAsync<FridgeItem>(stream, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+               var addedFridgeItem = await JsonSerializer.DeserializeAsync<FridgeItem>(stream, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+               await localStorageHouseholdService.AddOrUpdateFridgeItem(addedFridgeItem);
+
+               return addedFridgeItem;
             }
          }
 

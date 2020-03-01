@@ -5,7 +5,7 @@
 <div>
    <form @onsubmit="OnAddNewFridge">
       <input type="text" id="fridgeName" @bind-value="NewFridgeName" placeholder="Enter new Fridge Name" />
-      <button type="submit">Add</button>
+      <button type="submit" disabled="@IsOffline">Add</button>
    </form>
 </div>
 
@@ -33,7 +33,7 @@ else
                   <tr>
                      <td>@fridge.Name</td>
                      <td><button @onclick="@(x => NavigateToFridge(fridge.FridgeId))">Details</button></td>
-                     <td><button @onclick="@(x => DeleteFridge(fridge))">Delete Fridge</button></td>
+                     <td><button @onclick="@(x => DeleteFridge(fridge))" disabled="@IsOffline">Delete Fridge</button></td>
                   </tr>
                }
             </tbody>

@@ -18,7 +18,7 @@
          <input id="image" type="file" @ref=inputTypeFileElement />
       </div>
 
-      <button type="submit">Add</button>
+      <button type="submit" disabled="@IsOffline">Add</button>
    </EditForm>
 </div>
 
@@ -55,7 +55,7 @@ else
                   <td>
                      <img src="@GetImageSource(item)" height="64" width="64" />
                   </td>
-                  <td><button @onclick="@(x => DeleteFridgeItem(item))">Delete Fridge</button></td>
+                  <td><button @onclick="@(x => DeleteFridgeItem(item))" disabled="@IsOffline">Delete Fridge</button></td>
                </tr>
             }
          </tbody>

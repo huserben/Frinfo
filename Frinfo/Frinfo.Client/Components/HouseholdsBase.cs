@@ -16,6 +16,9 @@ namespace Frinfo.Client.Components
       public IHouseholdDataService HouseholdDataService { get; set; }
 
       [Inject]
+      public ILocalStorageHouseholdService LocalStorageHouseholdService { get; set; }
+
+      [Inject]
       public NavigationManager NavigationManager { get; set; }
 
       [Inject]
@@ -106,14 +109,14 @@ namespace Frinfo.Client.Components
       protected async Task RemoveFromRecentList(Household household)
       {
          RecentHouseholds.Remove(household);
-         await HouseholdDataService.RemoveHouseholdFromLocalStorage(household.HouseholdId);
+         await LocalStorageHouseholdService.RemoveHousehold(household.HouseholdId);
 
          StateHasChanged();
       }
 
       private async Task FetchRecentHouseholds()
       {
-         var households = await HouseholdDataService.GetLocallyStoredHouseholds();
+         var households = await LocalStorageHouseholdService.GetLocallyStoredHouseholds();
          foreach (var household in households)
          {
             RecentHouseholds.Add(household);

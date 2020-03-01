@@ -22,7 +22,7 @@ namespace Frinfo.API.Model
 
       public Household GetHouseholdByCode(string code)
       {
-         return dbContext.Households.Include(h => h.Fridges).FirstOrDefault(x => x.HouseholdCode == code);
+         return dbContext.Households.Include(h => h.Fridges).ThenInclude(f => f.Items).FirstOrDefault(x => x.HouseholdCode == code);
       }
 
       public async Task<bool> DeleteHouseholdById(int id)

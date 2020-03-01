@@ -6,10 +6,13 @@ using System.IO;
 using System.Threading.Tasks;
 using Blazor.FileReader;
 using System;
+using Caliburn.Micro;
+using Frinfo.Client.Events;
+using System.Threading;
 
 namespace Frinfo.Client.Pages
 {
-   public class FridgeDetailBase : ComponentBase
+   public class FridgeDetailBase : ComponentBase, IHandle<OnlineStateChangedEvent>
    {
       protected ElementReference inputTypeFileElement;
 
@@ -19,11 +22,19 @@ namespace Frinfo.Client.Pages
       [Inject]
       public IFileReaderService FileReaderService { get; set; }
 
+      [Inject]
+      public IHttpClient FrinfoHttpClient { get; set; }
+
+      [Inject]
+      public IEventAggregator EventAggregator { get; set; }
+
       [Parameter]
       public string HouseholdId { get; set; }
 
       [Parameter]
       public string FridgeId { get; set; }
+
+      public bool IsOffline { get; private set; }
 
       public Fridge Fridge { get; private set; } = new Fridge();
 
@@ -31,10 +42,20 @@ namespace Frinfo.Client.Pages
 
       public FridgeItem FridgeItem { get; set;  } = new FridgeItem();
 
+      public Task HandleAsync(OnlineStateChangedEvent message, CancellationToken cancellationToken)
+      {
+         IsOffline = !message.IsOnline;
+         return Task.CompletedTask;
+      }
+
       protected override async Task OnInitializedAsync()
       {
          Fridge = await FridgeDataService.GetFridgeById(int.Parse(HouseholdId), int.Parse(FridgeId));
          FridgeItems.AddRange(Fridge.Items);
+
+         IsOffline = !FrinfoHttpClient.IsOnline;
+
+         EventAggregator.SubscribeOnPublishedThread(this);
       }
 
       protected async Task DeleteFridgeItem(FridgeItem fridgeItem)

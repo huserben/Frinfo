@@ -24,7 +24,9 @@ namespace Frinfo
       {
          services.AddScoped<IHouseholdDataService, HouseholdDataService>();
          services.AddScoped<IFridgeDataService, FridgeDataService>();
+
          services.AddSingleton<IHttpClient, FrinfoHttpClient>();
+         services.AddScoped<ILocalStorageHouseholdService, LocalStorageHouseholdService>();
 
          services.AddBlazoredLocalStorage();
          services.AddFileReaderService(options => {
