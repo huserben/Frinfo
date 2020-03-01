@@ -46,8 +46,22 @@ else
             {
                <tr>
                   <td>@item.Name</td>
-                  <td>@item.ExpirationDate</td>
-                  <td><img src="@item.ItemImageBase64" height="50" width="50"/></td>
+                  <td>
+                     @if (item.ExpirationDate.HasValue)
+                     {
+                        @item.ExpirationDate.Value.ToShortDateString()
+                     }
+                  </td>
+                  <td>
+                     @if (item.ItemImage == null || item.ItemImage.Length == 0)
+                     {
+                        <img src="images/french-fries.png" height="64" width="64" />
+                     }
+                     else
+                     {
+                        <img src="@GetImageSource(item)" height="64" width="64" />
+                     }
+                  </td>
                   <td><button @onclick="@(x => DeleteFridgeItem(item))">Delete Fridge</button></td>
                </tr>
             }

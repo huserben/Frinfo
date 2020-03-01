@@ -64,6 +64,16 @@ namespace Frinfo.Client.Pages
          }
       }
 
+      protected string GetImageSource(FridgeItem fridgeItem)
+      {
+         if (fridgeItem.ItemImage == null)
+         {
+            return string.Empty;
+         }
+
+         return $"data:image;base64,{Convert.ToBase64String(fridgeItem.ItemImage)}";
+      }
+
       private async Task<byte[]> ReadFile()
       {
          foreach (var file in await FileReaderService.CreateReference(inputTypeFileElement).EnumerateFilesAsync())
