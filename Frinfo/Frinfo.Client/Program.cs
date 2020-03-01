@@ -4,6 +4,7 @@ using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Blazor.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Frinfo.Client.Services;
+using Caliburn.Micro;
 
 namespace Frinfo
 {
@@ -29,6 +30,8 @@ namespace Frinfo
          services.AddFileReaderService(options => {
             options.UseWasmSharedBuffer = true;
          });
+
+         services.AddSingleton<IEventAggregator, EventAggregator>();
       }
    }
 }

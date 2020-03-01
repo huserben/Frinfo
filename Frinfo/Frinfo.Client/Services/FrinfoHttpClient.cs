@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Caliburn.Micro;
+using Frinfo.Client.Events;
+using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Timers;
@@ -8,13 +10,33 @@ namespace Frinfo.Client.Services
    public class FrinfoHttpClient : IHttpClient
    {
       private readonly HttpClient httpClient;
+      private readonly IEventAggregator eventAggregator;
       private Timer healthTimer;
+      private bool isOnline;
 
-      public FrinfoHttpClient()
+      public FrinfoHttpClient(IEventAggregator eventAggregator)
       {
          httpClient = new HttpClient { BaseAddress = new Uri(ApiEndpoint) };
-
          SetHealthCheckTimer();
+
+         this.eventAggregator = eventAggregator;
+      }
+
+      public bool IsOnline
+      {
+         get
+         {
+            return isOnline;
+         }
+
+         private set
+         {
+            if (value != isOnline)
+            {
+               isOnline = value;
+               eventAggregator.PublishOnBackgroundThreadAsync(new OnlineStateChangedEvent(value));
+            }
+         }
       }
 
       private string ApiEndpoint
@@ -22,28 +44,57 @@ namespace Frinfo.Client.Services
          get { return "https://localhost:44304"; }
       }
 
-      public bool IsOnline
+      private bool IsCheckingOnlineStatus { get; set; }
+
+      public async Task<HttpResponseMessage> GetAsync(string requestUri, HttpCompletionOption completionOption)
       {
-         get;
-         private set;
+         await WaitForHealthCheckToFinish();
+
+         if (IsOnline)
+         {
+            return await httpClient.GetAsync(requestUri, completionOption);
+         }
+
+         return null;
       }
 
-      public Task<HttpResponseMessage> GetAsync(string requestUri, HttpCompletionOption completionOption)
+      public async Task<HttpResponseMessage> DeleteAsync(string requestUri)
       {
-         return httpClient.GetAsync(requestUri, completionOption);
+         await WaitForHealthCheckToFinish();
+
+         if (IsOnline)
+         {
+            return await httpClient.DeleteAsync(requestUri);
+         }
+
+         return null;
       }
 
-      public Task<HttpResponseMessage> DeleteAsync(string requestUri)
+      public async Task<HttpResponseMessage> PostAsync(string requestUri, HttpContent content)
       {
-         return httpClient.DeleteAsync(requestUri);
+         await WaitForHealthCheckToFinish();
+
+         if (IsOnline)
+         {
+            return await httpClient.PostAsync(requestUri, content);
+         }
+
+         return null;
       }
 
-      public Task<HttpResponseMessage> PostAsync(string requestUri, HttpContent content)
+      private async Task WaitForHealthCheckToFinish()
       {
-         return httpClient.PostAsync(requestUri, content);
+         while (IsCheckingOnlineStatus)
+         {
+            await Task.Delay(100);
+         }
+
+         return;
       }
+
       private void SetHealthCheckTimer()
       {
+         IsCheckingOnlineStatus = true;
          healthTimer = new Timer(1);
          healthTimer.Elapsed += OnCheckHealth;
          healthTimer.AutoReset = false;
@@ -52,6 +103,7 @@ namespace Frinfo.Client.Services
 
       private async void OnCheckHealth(object sender, ElapsedEventArgs e)
       {
+         IsCheckingOnlineStatus = true;
          if (healthTimer.Interval == 1)
          {
             healthTimer.Interval = 30000;
@@ -60,6 +112,7 @@ namespace Frinfo.Client.Services
 
          var isOnline = await UpdateOnlineStatus();
          IsOnline = isOnline;
+         IsCheckingOnlineStatus = false;
       }
 
       private async Task<bool> UpdateOnlineStatus()
