@@ -21,9 +21,8 @@ namespace Frinfo.Client.Services
 
       public async Task<bool> AddOrUpdateFridge(Fridge fridge)
       {
-         var (fridgeToRemove, households) = await GetFridgeById(fridge.HouseholdId, fridge.FridgeId);
+         var (fridgeToRemove, household, households) = await GetFridgeById(fridge.HouseholdId, fridge.FridgeId);
 
-         var household = fridgeToRemove.Household;
          if (fridgeToRemove != null)
          {
             household.Fridges.Remove(fridgeToRemove);
@@ -35,11 +34,10 @@ namespace Frinfo.Client.Services
          return true;
       }
 
-      public async Task AddOrUpdateFridgeItem(FridgeItem addedFridgeItem)
+      public async Task AddOrUpdateFridgeItem(int householdId, FridgeItem addedFridgeItem)
       {
-         var (fridgeItemToRemove, households) = await GetFridgeItemById(addedFridgeItem.Fridge.HouseholdId, addedFridgeItem.FridgeId, addedFridgeItem.FridgeItemId);
+         var (fridgeItemToRemove, fridge, households) = await GetFridgeItemById(householdId, addedFridgeItem.FridgeId, addedFridgeItem.FridgeItemId);
 
-         var fridge = fridgeItemToRemove.Fridge;
          if (fridgeItemToRemove != null)
          {
             fridge.Items.Remove(fridgeItemToRemove);
@@ -65,7 +63,7 @@ namespace Frinfo.Client.Services
 
       public async Task<Fridge> GetLocallyStoredFridge(int householdId, int fridgeId)
       {
-         var (fridge, _) = await GetFridgeById(householdId, fridgeId);
+         var (fridge, _, _) = await GetFridgeById(householdId, fridgeId);
          return fridge;
       }
 
@@ -83,7 +81,7 @@ namespace Frinfo.Client.Services
 
       public async Task<bool> RemoveFridge(int householdId, int fridgeId)
       {
-         var (fridgeToRemove, households) = await GetFridgeById(householdId, fridgeId);
+         var (fridgeToRemove, _, households) = await GetFridgeById(householdId, fridgeId);
 
          if (fridgeToRemove == null)
          {
@@ -99,14 +97,13 @@ namespace Frinfo.Client.Services
 
       public async Task<bool> RemoveFridgeItem(int householdId, int fridgeId, int fridgeItemId)
       {
-         var (fridgeItemToRemove, households) = await GetFridgeItemById(householdId, fridgeId, fridgeItemId);
+         var (fridgeItemToRemove, fridge, households) = await GetFridgeItemById(householdId, fridgeId, fridgeItemId);
 
          if (fridgeItemToRemove == null)
          {
             return false;
          }
 
-         var fridge = fridgeItemToRemove.Fridge;
          fridge.Items.Remove(fridgeItemToRemove);
          await StoreHouseholdsInLocalStorage(households);
 
@@ -135,25 +132,25 @@ namespace Frinfo.Client.Services
          await localStorageService.SetItemAsync(RecentHouseholdsKey, householdsAsJson);
       }
 
-      private async Task<(Fridge fridge, List<Household> households)> GetFridgeById(int householdId, int fridgeId)
+      private async Task<(Fridge fridge, Household household, List<Household> households)> GetFridgeById(int householdId, int fridgeId)
       {
          var storedHouseholds = await GetLocallyStoredHouseholds();
          var household = storedHouseholds.FirstOrDefault(h => h.HouseholdId == householdId);
          if (household == null)
          {
-            return (null, storedHouseholds);
+            return (null, null, storedHouseholds);
          }
 
          var fridge = household.Fridges.FirstOrDefault(f => f.FridgeId == fridgeId);
-         return (fridge, storedHouseholds);
+         return (fridge, household, storedHouseholds);
       }
 
-      private async Task<(FridgeItem fridgeItem, List<Household> households)> GetFridgeItemById(int householdId, int fridgeId, int fridgeItemId)
+      private async Task<(FridgeItem fridgeItem, Fridge fridge, List<Household> households)> GetFridgeItemById(int householdId, int fridgeId, int fridgeItemId)
       {
-         var (fridge, households) = await GetFridgeById(householdId, fridgeId);
+         var (fridge, _, households) = await GetFridgeById(householdId, fridgeId);
          var fridgeItem = fridge.Items.FirstOrDefault(i => i.FridgeItemId == fridgeItemId);
 
-         return (fridgeItem, households);
+         return (fridgeItem, fridge, households);
       }
    }
 }

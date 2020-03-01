@@ -92,7 +92,7 @@ namespace Frinfo.Client.Services
             using (var stream = await response.Content.ReadAsStreamAsync())
             {
                var addedFridgeItem = await JsonSerializer.DeserializeAsync<FridgeItem>(stream, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-               await localStorageHouseholdService.AddOrUpdateFridgeItem(addedFridgeItem);
+               await localStorageHouseholdService.AddOrUpdateFridgeItem(householdId, addedFridgeItem);
 
                return addedFridgeItem;
             }

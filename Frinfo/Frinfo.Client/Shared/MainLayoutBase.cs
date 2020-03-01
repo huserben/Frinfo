@@ -5,9 +5,9 @@ using Microsoft.AspNetCore.Components;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Frinfo.Client.Pages
+namespace Frinfo.Client.Shared
 {
-   public class IndexBase : ComponentBase, IHandle<OnlineStateChangedEvent>
+   public class MainLayoutBase : LayoutComponentBase, IHandle<OnlineStateChangedEvent>
    {
       [Inject]
       public IEventAggregator EventAggregator { get; set; }

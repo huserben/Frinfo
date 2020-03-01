@@ -1,4 +1,4 @@
-﻿@inherits LayoutComponentBase
+﻿@inherits MainLayoutBase
 
 <div class="sidebar">
     <NavMenu />
@@ -6,7 +6,14 @@
 
 <div class="main">
    <div class="top-row px-4">
-      <a href="http://blazor.net" target="_blank" class="ml-md-auto">About</a>
+      @if (IsOnline)
+      {
+         <a>We are Online!</a>
+      }
+      else
+      {
+         <a>We are Offline!</a>
+      }
    </div>
 
    <div class="content px-4">
