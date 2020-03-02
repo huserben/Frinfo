@@ -6,7 +6,7 @@ namespace Frinfo.Client.Services
 {
    public interface ILocalStorageHouseholdService
    {
-      Task<List<Household>> GetLocallyStoredHouseholds();
+      Task<IEnumerable<Household>> GetLocallyStoredHouseholds();
 
       Task AddOrUpdateHousehold(Household household);
 

@@ -1,10 +1,11 @@
 ﻿using Blazored.LocalStorage;
 using Frinfo.Shared;
-using System;
+using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Timers;
 
 namespace Frinfo.Client.Services
 {
@@ -13,15 +14,24 @@ namespace Frinfo.Client.Services
       private const string RecentHouseholdsKey = "RecentHouseholds";
 
       private readonly ILocalStorageService localStorageService;
+      private readonly ILogger<LocalStorageHouseholdService> logger;
+      private Dictionary<int, Household> storedHouseholds;
+      private bool hasChanges = false;
 
-      public LocalStorageHouseholdService(ILocalStorageService localStorageService)
+      public LocalStorageHouseholdService(ILocalStorageService localStorageService, ILogger<LocalStorageHouseholdService> logger)
       {
          this.localStorageService = localStorageService;
+         this.logger = logger;
+
+         var storageTimer = new Timer(10000);
+         storageTimer.AutoReset = true;
+         storageTimer.Elapsed += OnStorageTimerHasElapsed;
+         storageTimer.Enabled = true;
       }
 
       public async Task<bool> AddOrUpdateFridge(Fridge fridge)
       {
-         var (fridgeToRemove, household, households) = await GetFridgeById(fridge.HouseholdId, fridge.FridgeId);
+         var (fridgeToRemove, household) = await GetFridgeById(fridge.HouseholdId, fridge.FridgeId);
 
          if (fridgeToRemove != null)
          {
@@ -29,14 +39,14 @@ namespace Frinfo.Client.Services
          }
 
          household.Fridges.Add(fridge);
-         await StoreHouseholdsInLocalStorage(households);
+         hasChanges = true;
 
          return true;
       }
 
       public async Task AddOrUpdateFridgeItem(int householdId, FridgeItem addedFridgeItem)
       {
-         var (fridgeItemToRemove, fridge, households) = await GetFridgeItemById(householdId, addedFridgeItem.FridgeId, addedFridgeItem.FridgeItemId);
+         var (fridgeItemToRemove, fridge) = await GetFridgeItemById(householdId, addedFridgeItem.FridgeId, addedFridgeItem.FridgeItemId);
 
          if (fridgeItemToRemove != null)
          {
@@ -44,81 +54,42 @@ namespace Frinfo.Client.Services
          }
 
          fridge.Items.Add(addedFridgeItem);
-         await StoreHouseholdsInLocalStorage(households);
+
+         hasChanges = true;
       }
 
       public async Task AddOrUpdateHousehold(Household household)
       {
-         var localHouseholds = await GetLocallyStoredHouseholds();
+         var localHouseholds = await GetStoredHouseholds();
+         localHouseholds[household.HouseholdId] = household;
 
-         var householdToRemove = localHouseholds.FirstOrDefault(h => h.HouseholdId == household.HouseholdId);
-         if (householdToRemove != null)
-         {
-            localHouseholds.Remove(householdToRemove);
-         }
-
-         localHouseholds.Insert(0, household);
-         await StoreHouseholdsInLocalStorage(localHouseholds);
+         hasChanges = true;
       }
 
       public async Task<Fridge> GetLocallyStoredFridge(int householdId, int fridgeId)
       {
-         var (fridge, _, _) = await GetFridgeById(householdId, fridgeId);
+         var (fridge, _) = await GetFridgeById(householdId, fridgeId);
          return fridge;
       }
 
-      public async Task<List<Household>> GetLocallyStoredHouseholds()
+      public async Task<IEnumerable<Household>> GetLocallyStoredHouseholds()
       {
-         var containsFavoriteHouseholds = await localStorageService.ContainKeyAsync(RecentHouseholdsKey);
-         if (!containsFavoriteHouseholds)
-         {
-            await localStorageService.SetItemAsync(RecentHouseholdsKey, new List<string>());
-         }
-
-         var householdsAsJson = await localStorageService.GetItemAsync<List<string>>(RecentHouseholdsKey);
-         return householdsAsJson.Select(h => JsonSerializer.Deserialize<Household>(h)).ToList();
+         var householdsDictionary = await GetStoredHouseholds();
+         return householdsDictionary.Values;
       }
 
       public async Task<bool> RemoveFridge(int householdId, int fridgeId)
       {
-         var (fridgeToRemove, _, households) = await GetFridgeById(householdId, fridgeId);
+         var localHouseholds = await GetStoredHouseholds();
 
-         if (fridgeToRemove == null)
+         if (localHouseholds.ContainsKey(householdId))
          {
-            return false;
-         }
+            var household = localHouseholds[householdId];
+            var fridgeToRemove = household.Fridges.FirstOrDefault(f => f.FridgeId == fridgeId);
 
-         var household = fridgeToRemove.Household;
-         household.Fridges.Remove(fridgeToRemove);
-         await StoreHouseholdsInLocalStorage(households);
-
-         return true;
-      }
-
-      public async Task<bool> RemoveFridgeItem(int householdId, int fridgeId, int fridgeItemId)
-      {
-         var (fridgeItemToRemove, fridge, households) = await GetFridgeItemById(householdId, fridgeId, fridgeItemId);
-
-         if (fridgeItemToRemove == null)
-         {
-            return false;
-         }
-
-         fridge.Items.Remove(fridgeItemToRemove);
-         await StoreHouseholdsInLocalStorage(households);
-
-         return true;
-      }
-
-      public async Task<bool> RemoveHousehold(int householdId)
-      {
-         var localHouseholds = await GetLocallyStoredHouseholds();
-         var householdToRemove = localHouseholds.FirstOrDefault(h => h.HouseholdId == householdId);
-         if (householdToRemove != null)
-         {
-            if (localHouseholds.Remove(householdToRemove))
+            if (household.Fridges.Remove(fridgeToRemove))
             {
-               await StoreHouseholdsInLocalStorage(localHouseholds);
+               hasChanges = true;
                return true;
             }
          }
@@ -126,31 +97,97 @@ namespace Frinfo.Client.Services
          return false;
       }
 
-      public async Task StoreHouseholdsInLocalStorage(List<Household> households)
+      public async Task<bool> RemoveFridgeItem(int householdId, int fridgeId, int fridgeItemId)
       {
-         var householdsAsJson = households.Select(h => JsonSerializer.Serialize(h));
-         await localStorageService.SetItemAsync(RecentHouseholdsKey, householdsAsJson);
-      }
+         var (fridgeItemToRemove, fridge) = await GetFridgeItemById(householdId, fridgeId, fridgeItemId);
 
-      private async Task<(Fridge fridge, Household household, List<Household> households)> GetFridgeById(int householdId, int fridgeId)
-      {
-         var storedHouseholds = await GetLocallyStoredHouseholds();
-         var household = storedHouseholds.FirstOrDefault(h => h.HouseholdId == householdId);
-         if (household == null)
+         if (fridgeItemToRemove != null && fridge.Items.Remove(fridgeItemToRemove))
          {
-            return (null, null, storedHouseholds);
+            hasChanges = true;
+            return true;
          }
 
-         var fridge = household.Fridges.FirstOrDefault(f => f.FridgeId == fridgeId);
-         return (fridge, household, storedHouseholds);
+         return false;
       }
 
-      private async Task<(FridgeItem fridgeItem, Fridge fridge, List<Household> households)> GetFridgeItemById(int householdId, int fridgeId, int fridgeItemId)
+      public async Task<bool> RemoveHousehold(int householdId)
       {
-         var (fridge, _, households) = await GetFridgeById(householdId, fridgeId);
+         var localHouseholds = await GetStoredHouseholds();
+
+         if (localHouseholds.ContainsKey(householdId))
+         {
+            hasChanges = true;
+            return localHouseholds.Remove(householdId);
+         }
+
+         return false;
+      }
+
+      private async Task<(Fridge fridge, Household household)> GetFridgeById(int householdId, int fridgeId)
+      {
+         var storedHouseholds = await GetStoredHouseholds();
+         var household = storedHouseholds[householdId];
+         var fridge = household.Fridges.FirstOrDefault(f => f.FridgeId == fridgeId);
+         return (fridge, household);
+      }
+
+      private async Task<(FridgeItem fridgeItem, Fridge fridge)> GetFridgeItemById(int householdId, int fridgeId, int fridgeItemId)
+      {
+         var (fridge, _) = await GetFridgeById(householdId, fridgeId);
          var fridgeItem = fridge.Items.FirstOrDefault(i => i.FridgeItemId == fridgeItemId);
 
-         return (fridgeItem, fridge, households);
+         return (fridgeItem, fridge);
+      }
+
+      private async Task StoreHouseholdsInLocalStorage()
+      {
+         if (!hasChanges)
+         {
+            logger.LogDebug("No changes to store");
+            return;
+         }
+
+         var storedHouseholds = await GetStoredHouseholds();
+
+         logger.LogDebug("Storing Dictionary...");
+         await localStorageService.SetItemAsync(RecentHouseholdsKey, storedHouseholds.Values.Select(h => JsonSerializer.Serialize(h)).ToList());
+
+         hasChanges = false;
+         logger.LogDebug("Stored Successfully");
+      }
+
+      private async Task<Dictionary<int, Household>> GetStoredHouseholds()
+      {
+         if (storedHouseholds == null)
+         {
+            logger.LogDebug("Loading data from local storage");
+
+            var containsFavoriteHouseholds = await localStorageService.ContainKeyAsync(RecentHouseholdsKey);
+            if (!containsFavoriteHouseholds)
+            {
+               await localStorageService.SetItemAsync(RecentHouseholdsKey, new List<string>());
+            }
+
+            storedHouseholds = new Dictionary<int, Household>();
+
+            var householdsAsJson = await localStorageService.GetItemAsync<List<string>>(RecentHouseholdsKey);
+            
+            foreach (var household in householdsAsJson.Select(h => JsonSerializer.Deserialize<Household>(h)))
+            {
+               logger.LogDebug($"Loaded household {household.HouseholdId}");
+
+               storedHouseholds.Add(household.HouseholdId, household);
+            }
+         }
+
+         return storedHouseholds;
+      }
+
+
+      private async void OnStorageTimerHasElapsed(object sender, ElapsedEventArgs e)
+      {
+         logger.LogDebug("Storage Timer Elapsed");
+         await StoreHouseholdsInLocalStorage();
       }
    }
 }
