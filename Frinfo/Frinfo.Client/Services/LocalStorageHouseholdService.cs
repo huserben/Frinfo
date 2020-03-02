@@ -162,21 +162,19 @@ namespace Frinfo.Client.Services
          {
             logger.LogDebug("Loading data from local storage");
 
-            var containsFavoriteHouseholds = await localStorageService.ContainKeyAsync(RecentHouseholdsKey);
-            if (!containsFavoriteHouseholds)
-            {
-               await localStorageService.SetItemAsync(RecentHouseholdsKey, new List<string>());
-            }
-
             storedHouseholds = new Dictionary<int, Household>();
 
-            var householdsAsJson = await localStorageService.GetItemAsync<List<string>>(RecentHouseholdsKey);
-            
-            foreach (var household in householdsAsJson.Select(h => JsonSerializer.Deserialize<Household>(h)))
+            var containsFavoriteHouseholds = await localStorageService.ContainKeyAsync(RecentHouseholdsKey);
+            if (containsFavoriteHouseholds)
             {
-               logger.LogDebug($"Loaded household {household.HouseholdId}");
+               var householdsAsJson = await localStorageService.GetItemAsync<List<string>>(RecentHouseholdsKey);
 
-               storedHouseholds.Add(household.HouseholdId, household);
+               foreach (var household in householdsAsJson.Select(h => JsonSerializer.Deserialize<Household>(h)))
+               {
+                  logger.LogDebug($"Loaded household {household.HouseholdId}");
+
+                  storedHouseholds.Add(household.HouseholdId, household);
+               }
             }
          }
 
