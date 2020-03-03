@@ -2,26 +2,6 @@
 @using Frinfo.Shared
 @inherits FridgeDetailBase
 
-<h3>Add new Item</h3>
-<div>
-   <EditForm Model="@FridgeItem" OnValidSubmit="@AddFridgeItem">
-      <div>
-         <label for="itemName">Item Name:</label>
-         <InputText id="itemName" @bind-Value="@FridgeItem.Name" placeholder="Enter Item Name" />
-      </div>
-      <div>
-         <label for="expirationDate">Expiration Date:</label>
-         <InputDate TValue="System.Nullable<System.DateTime>" id="expirationDate" @bind-Value="@FridgeItem.ExpirationDate" placeholder="Enter Expiry date" />
-      </div>
-      <div>
-         <label for="image">Image</label>
-         <input id="image" type="file" @ref=inputTypeFileElement />
-      </div>
-
-      <button type="submit" disabled="@IsOffline">Add</button>
-   </EditForm>
-</div>
-
 @if (Fridge == null)
 {
    <a>Loading...</a>
@@ -55,10 +35,13 @@ else
                   <td>
                      <img src="@GetImageSource(item)" height="64" width="64" />
                   </td>
-                  <td><button @onclick="@(x => DeleteFridgeItem(item))" disabled="@IsOffline">Delete Fridge</button></td>
+                  <td><button @onclick="@(x => DeleteFridgeItem(item))" disabled="@IsOffline">Delete Item</button></td>
                </tr>
             }
          </tbody>
       </table>
    </div>
+
+   <button @onclick="@AddFridgeItem">&nbsp;&nbsp;+&nbsp;&nbsp;</button>
+   <FridgeItemEditComponent @ref="EditFridgeItem" Fridge="Fridge" CloseEventCallback="@EditFridgeItem_OnClose"></FridgeItemEditComponent>
 }

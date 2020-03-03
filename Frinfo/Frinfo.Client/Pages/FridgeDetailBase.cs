@@ -9,12 +9,12 @@ using System;
 using Caliburn.Micro;
 using Frinfo.Client.Events;
 using System.Threading;
+using Frinfo.Client.Components;
 
 namespace Frinfo.Client.Pages
 {
    public class FridgeDetailBase : ComponentBase, IHandle<OnlineStateChangedEvent>
    {
-      protected ElementReference inputTypeFileElement;
 
       [Inject]
       public IFridgeDataService FridgeDataService { get; set; }
@@ -40,7 +40,7 @@ namespace Frinfo.Client.Pages
 
       public List<FridgeItem> FridgeItems { get; } = new List<FridgeItem>();
 
-      public FridgeItem FridgeItem { get; set;  } = new FridgeItem();
+      protected FridgeItemEditComponent EditFridgeItem { get; set; }
 
       public Task HandleAsync(OnlineStateChangedEvent message, CancellationToken cancellationToken)
       {
@@ -50,8 +50,7 @@ namespace Frinfo.Client.Pages
 
       protected override async Task OnInitializedAsync()
       {
-         Fridge = await FridgeDataService.GetFridgeById(int.Parse(HouseholdId), int.Parse(FridgeId));
-         FridgeItems.AddRange(Fridge.Items);
+         await ReloadFridgeItems();
 
          IsOffline = !FrinfoHttpClient.IsOnline;
 
@@ -69,22 +68,6 @@ namespace Frinfo.Client.Pages
          }
       }
 
-      protected async Task AddFridgeItem()
-      {
-         FridgeItem.FridgeId = Fridge.FridgeId;
-         FridgeItem.ItemImage = await ReadFile();
-
-         if (FridgeItem.FridgeItemId == 0)
-         {
-            var addedItem = await FridgeDataService.AddFridgeItem(Fridge.HouseholdId, FridgeItem);
-
-            if (addedItem != null)
-            {
-               FridgeItems.Add(addedItem);
-            }
-         }
-      }
-
       protected string GetImageSource(FridgeItem fridgeItem)
       {
          if (fridgeItem.ItemImage == null || fridgeItem.ItemImage.Length == 0)
@@ -95,18 +78,23 @@ namespace Frinfo.Client.Pages
          return $"data:image;base64,{Convert.ToBase64String(fridgeItem.ItemImage)}";
       }
 
-      private async Task<byte[]> ReadFile()
+      protected async void EditFridgeItem_OnClose()
       {
-         foreach (var file in await FileReaderService.CreateReference(inputTypeFileElement).EnumerateFilesAsync())
-         {
-            // Read into memory and act
-            using (var memoryStream = await file.CreateMemoryStreamAsync(4096))
-            {
-               return memoryStream.ToArray();
-            }
-         }
+         await ReloadFridgeItems();
 
-         return new byte[0];
+         StateHasChanged();
+      }
+
+      protected void AddFridgeItem()
+      {
+         EditFridgeItem.Show();
+      }
+
+      private async Task ReloadFridgeItems()
+      {
+         FridgeItems.Clear();
+         Fridge = await FridgeDataService.GetFridgeById(int.Parse(HouseholdId), int.Parse(FridgeId));
+         FridgeItems.AddRange(Fridge.Items);
       }
    }
 }

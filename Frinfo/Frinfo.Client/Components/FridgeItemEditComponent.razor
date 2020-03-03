@@ -1,0 +1,21 @@
+﻿@inherits FridgeItemEditComponentBase
+
+@if (ShowDialog)
+{
+   <EditForm Model="@FridgeItem" OnValidSubmit="@AddFridgeItem">
+      <div>
+         <label for="itemName">Item Name:</label>
+         <InputText id="itemName" @bind-Value="@FridgeItem.Name" placeholder="Enter Item Name" />
+      </div>
+      <div>
+         <label for="expirationDate">Expiration Date:</label>
+         <InputDate TValue="System.Nullable<System.DateTime>" id="expirationDate" @bind-Value="@FridgeItem.ExpirationDate" placeholder="Enter Expiry date" />
+      </div>
+      <div>
+         <label for="image">Image</label>
+         <input id="image" type="file" @ref=inputTypeFileElement />
+      </div>
+
+      <button type="submit">Add</button>
+   </EditForm>
+}
