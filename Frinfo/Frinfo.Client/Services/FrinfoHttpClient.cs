@@ -66,6 +66,18 @@ namespace Frinfo.Client.Services
          return null;
       }
 
+      public async Task<HttpResponseMessage> PutAsync(string requestUri, HttpContent content)
+      {
+         await WaitForHealthCheckToFinish();
+
+         if (IsOnline)
+         {
+            return await httpClient.PutAsync(requestUri, content);
+         }
+
+         return null;
+      }
+
       private async Task WaitForHealthCheckToFinish()
       {
          while (IsCheckingOnlineStatus)

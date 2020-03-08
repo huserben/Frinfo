@@ -18,6 +18,7 @@ else
                <th>ExpirationDate</th>
                <th>Image</th>
                <th></th>
+               <th></th>
             </tr>
          </thead>
          <tbody>
@@ -35,6 +36,7 @@ else
                   <td>
                      <img src="@GetImageSource(item)" height="64" width="64" />
                   </td>
+                  <td><button @onclick="@(x => EditItem(item))" disabled="@IsOffline">Edit Item</button></td>
                   <td><button @onclick="@(x => DeleteFridgeItem(item))" disabled="@IsOffline">Delete Item</button></td>
                </tr>
             }

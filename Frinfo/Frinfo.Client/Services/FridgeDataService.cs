@@ -3,8 +3,6 @@ using System.Threading.Tasks;
 using System.Text.Json;
 using System.Net.Http;
 using System.Text;
-using Blazored.LocalStorage;
-using System.Linq;
 
 namespace Frinfo.Client.Services
 {
@@ -83,9 +81,9 @@ namespace Frinfo.Client.Services
 
       public async Task<FridgeItem> AddFridgeItem(int householdId, FridgeItem fridgeItem)
       {
-         var fridgeJson = new StringContent(JsonSerializer.Serialize(fridgeItem), Encoding.UTF8, "application/json");
+         var fridgeItemJson = new StringContent(JsonSerializer.Serialize(fridgeItem), Encoding.UTF8, "application/json");
 
-         var response = await httpClient.PostAsync($"api/household/{householdId}/fridge/{fridgeItem.FridgeId}/item", fridgeJson);
+         var response = await httpClient.PostAsync($"api/household/{householdId}/fridge/{fridgeItem.FridgeId}/item", fridgeItemJson);
 
          if (response.IsSuccessStatusCode)
          {
@@ -99,6 +97,15 @@ namespace Frinfo.Client.Services
          }
 
          return null;
+      }
+
+      public async Task<bool> UpdateFridgeItem(int householdId, FridgeItem fridgeItem)
+      {
+         var fridgeItemJson = new StringContent(JsonSerializer.Serialize(fridgeItem), Encoding.UTF8, "application/json");
+
+         var response = await httpClient.PutAsync($"api/household/{householdId}/fridge/{fridgeItem.FridgeId}/item", fridgeItemJson);
+
+         return response.IsSuccessStatusCode;
       }
    }
 }

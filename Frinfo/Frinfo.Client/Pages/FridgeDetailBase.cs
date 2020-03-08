@@ -57,6 +57,12 @@ namespace Frinfo.Client.Pages
          EventAggregator.SubscribeOnPublishedThread(this);
       }
 
+      protected void EditItem(FridgeItem fridgeItem)
+      {
+         EditFridgeItem.FridgeItem = fridgeItem;
+         EditFridgeItem.Show();
+      }
+
       protected async Task DeleteFridgeItem(FridgeItem fridgeItem)
       {
          var removedItem = await FridgeDataService.DeleteFridgeItem(Fridge.HouseholdId, Fridge.FridgeId, fridgeItem.FridgeItemId);
@@ -87,6 +93,7 @@ namespace Frinfo.Client.Pages
 
       protected void AddFridgeItem()
       {
+         EditFridgeItem.FridgeItem = new FridgeItem();
          EditFridgeItem.Show();
       }
 

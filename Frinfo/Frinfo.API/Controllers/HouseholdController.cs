@@ -93,7 +93,7 @@ namespace Frinfo.API.Controllers
       }
 
       [HttpPost("{householdId}/fridge/{fridgeId}/item")]
-      public async Task<IActionResult> AddNewFridgeAsync(int householdId, int fridgeId, [FromBody]FridgeItem newFridgeItem)
+      public async Task<IActionResult> AddNewFridgeItemAsync(int householdId, int fridgeId, [FromBody]FridgeItem newFridgeItem)
       {
          var fridge = householdRepistory.GetFridgeById(householdId, fridgeId);
          var fridgeItem = await householdRepistory.AddFridgeItem(fridge, newFridgeItem);
@@ -101,6 +101,20 @@ namespace Frinfo.API.Controllers
          if (fridgeItem != null)
          {
             return Created($"api/household/fridge/{fridgeItem.FridgeId}", fridgeItem);
+         }
+
+         return BadRequest();
+      }
+
+      [HttpPut("{householdId}/fridge/{fridgeId}/item")]
+      public async Task<IActionResult> UppdateFridgeItem(int householdId, int fridgeId, [FromBody]FridgeItem fridgeItemToUpdate)
+      {
+         var fridge = householdRepistory.GetFridgeById(householdId, fridgeId);
+         var fridgeItem = await householdRepistory.UpdateFridgeItem(fridge, fridgeItemToUpdate);
+
+         if (fridgeItem != null)
+         {
+            return NoContent();
          }
 
          return BadRequest();

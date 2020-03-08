@@ -12,5 +12,7 @@ namespace Frinfo.Client.Services
       Task<HttpResponseMessage> DeleteAsync(string requestUri);
 
       Task<HttpResponseMessage> PostAsync(string requestUri, HttpContent content);
+
+      Task<HttpResponseMessage> PutAsync(string requestUri, HttpContent content);
    }
 }

@@ -164,17 +164,24 @@ namespace Frinfo.Client.Services
 
             storedHouseholds = new Dictionary<int, Household>();
 
-            var containsFavoriteHouseholds = await localStorageService.ContainKeyAsync(RecentHouseholdsKey);
-            if (containsFavoriteHouseholds)
+            try
             {
-               var householdsAsJson = await localStorageService.GetItemAsync<List<string>>(RecentHouseholdsKey);
-
-               foreach (var household in householdsAsJson.Select(h => JsonSerializer.Deserialize<Household>(h)))
+               var containsFavoriteHouseholds = await localStorageService.ContainKeyAsync(RecentHouseholdsKey);
+               if (containsFavoriteHouseholds)
                {
-                  logger.LogDebug($"Loaded household {household.HouseholdId}");
+                  var householdsAsJson = await localStorageService.GetItemAsync<List<string>>(RecentHouseholdsKey);
 
-                  storedHouseholds.Add(household.HouseholdId, household);
+                  foreach (var household in householdsAsJson.Select(h => JsonSerializer.Deserialize<Household>(h)))
+                  {
+                     logger.LogDebug($"Loaded household {household.HouseholdId}");
+
+                     storedHouseholds.Add(household.HouseholdId, household);
+                  }
                }
+            }
+            catch
+            {
+               logger.LogDebug("Error during loading of local storage - initializing empty.");
             }
          }
 

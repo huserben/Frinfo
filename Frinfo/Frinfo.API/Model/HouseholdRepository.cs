@@ -139,6 +139,21 @@ namespace Frinfo.API.Model
          return newFridgeItem;
       }
 
+      public async Task<FridgeItem> UpdateFridgeItem(Fridge fridge, FridgeItem fridgeItemToUpdate)
+      {
+         var fridgeItem = fridge.Items.FirstOrDefault(fi => fi.FridgeItemId == fridgeItemToUpdate.FridgeItemId);
+         if (fridgeItem != null)
+         {
+            fridgeItem.Name = fridgeItemToUpdate.Name;
+            fridgeItem.ExpirationDate = fridgeItemToUpdate.ExpirationDate;
+            fridgeItem.ItemImage = fridgeItemToUpdate.ItemImage;
+            
+            await dbContext.SaveChangesAsync();
+         }
+
+         return fridgeItem;
+      }
+
       public Household GetHouseholdById(int householdId)
       {
          return dbContext.Households.Include(h => h.Fridges).ThenInclude(f => f.Items).FirstOrDefault(x => x.HouseholdId == householdId);

@@ -15,8 +15,6 @@ namespace Frinfo.Client.Components
    {
       protected ElementReference inputTypeFileElement;
 
-      private FridgeItem originalFridgeItem;
-
       public bool ShowDialog { get; set; }
 
       public FridgeItem FridgeItem { get; set; }
@@ -35,7 +33,6 @@ namespace Frinfo.Client.Components
 
       public void Show()
       {
-         ResetDialog();
          ShowDialog = true;
          StateHasChanged();
       }
@@ -46,19 +43,11 @@ namespace Frinfo.Client.Components
          {
             FridgeItem = new FridgeItem();
          }
-
-         originalFridgeItem = FridgeItem;
-      }
-
-      private void ResetDialog()
-      {
-         FridgeItem = originalFridgeItem;
       }
 
       public void Close()
       {
          ShowDialog = false;
-         originalFridgeItem = null;
          StateHasChanged();
       }
 
@@ -74,7 +63,7 @@ namespace Frinfo.Client.Components
          }
          else
          {
-            // Update Existing Item
+            await FridgeDataService.UpdateFridgeItem(Fridge.HouseholdId, FridgeItem);
          }
 
          ShowDialog = false;
@@ -82,7 +71,12 @@ namespace Frinfo.Client.Components
          StateHasChanged();
       }
 
-
+      protected void OnCancelEditItem()
+      {
+         ShowDialog = false;
+         FridgeItem = new FridgeItem();
+         StateHasChanged();
+      }
 
       private async Task<byte[]> ReadFile()
       {
