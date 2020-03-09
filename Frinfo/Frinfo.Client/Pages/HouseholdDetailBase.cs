@@ -1,4 +1,5 @@
 ﻿using Caliburn.Micro;
+using Frinfo.Client.Components;
 using Frinfo.Client.Events;
 using Frinfo.Client.Services;
 using Frinfo.Shared;
@@ -31,12 +32,12 @@ namespace Frinfo.Client.Pages
 
       public Household Household { get; private set; } = new Household();
 
-      public string NewFridgeName { get; set; }
-
       public List<Fridge> Fridges { get; } = new List<Fridge>();
 
       public bool IsOffline { get; set; }
-                 
+
+      protected FridgeEditComponent EditFridge { get; set; }
+
       public Task HandleAsync(OnlineStateChangedEvent message, CancellationToken cancellationToken)
       {
          IsOffline = !message.IsOnline;
@@ -70,13 +71,16 @@ namespace Frinfo.Client.Pages
          }
       }
 
-      protected async Task OnAddNewFridge()
+      protected void AddFridge_OnClose()
       {
-         var newFridge = await FridgeDataService.AddNewFridge(Household.HouseholdId, NewFridgeName);
-         if (newFridge != null)
-         {
-            NavigateToFridge(newFridge.FridgeId);
-         }
+         var newFridge = EditFridge.Fridge;
+         NavigateToFridge(newFridge.FridgeId);
+      }
+
+      protected void AddNewFridge()
+      {
+         EditFridge.Fridge = new Fridge();
+         EditFridge.Show();
       }
    }
 }

@@ -28,6 +28,9 @@ namespace Frinfo.Client.Pages
       [Inject]
       public IEventAggregator EventAggregator { get; set; }
 
+      [Inject]
+      public NavigationManager NavigationManager { get; set; }
+
       [Parameter]
       public string HouseholdId { get; set; }
 
@@ -41,6 +44,8 @@ namespace Frinfo.Client.Pages
       public List<FridgeItem> FridgeItems { get; } = new List<FridgeItem>();
 
       protected FridgeItemEditComponent EditFridgeItem { get; set; }
+
+      protected FridgeEditComponent EditFridge { get; set; }
 
       public Task HandleAsync(OnlineStateChangedEvent message, CancellationToken cancellationToken)
       {
@@ -88,6 +93,24 @@ namespace Frinfo.Client.Pages
       {
          await ReloadFridgeItems();
 
+         StateHasChanged();
+      }
+
+      protected void OnEditFridgeTitle()
+      {
+         EditFridge.Fridge = Fridge;
+         EditFridge.Show();
+      }
+
+      protected async void OnRemoveFridge()
+      {
+         await FridgeDataService.DeleteFridge(Fridge.HouseholdId, Fridge.FridgeId);
+         NavigationManager.NavigateTo($"household/{Fridge.HouseholdId}");
+      }
+
+      protected async void EditFridge_OnClose()
+      {
+         Fridge = await FridgeDataService.GetFridgeById(int.Parse(HouseholdId), int.Parse(FridgeId));
          StateHasChanged();
       }
 

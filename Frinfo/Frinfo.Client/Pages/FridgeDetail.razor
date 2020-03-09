@@ -2,7 +2,15 @@
 @using Frinfo.Shared
 @inherits FridgeDetailBase
 
-<h1 class="page-title">@Fridge.Name Details</h1>
+   <div>
+      <h1 class="page-title">@Fridge.Name</h1>
+      <button disabled="@IsOffline" class="btn btn-light" @onclick="@OnEditFridgeTitle">
+         <i class="fas fa-edit" />
+      </button>
+      <button disabled="@IsOffline" class="btn btn-danger" @onclick="@OnRemoveFridge">
+         <i class="fas fa-trash" />
+      </button>
+   </div>
 
 @if (Fridge == null)
 {
@@ -15,7 +23,7 @@ else
       <table class="table">
          <thead>
             <tr>
-               <th>Fridge</th>
+               <th>Item</th>
                <th>ExpirationDate</th>
                <th>Image</th>
                <th></th>
@@ -53,6 +61,7 @@ else
       </table>
    </div>
 
-   <button @onclick="@AddFridgeItem" class="btn btn-dark table-btn quick-add-btn">&nbsp;&nbsp;+&nbsp;&nbsp;</button>
+   <button @onclick="@AddFridgeItem" class="btn btn-dark table-btn quick-add-btn" disabled="@IsOffline">&nbsp;&nbsp;+&nbsp;&nbsp;</button>
    <FridgeItemEditComponent @ref="EditFridgeItem" Fridge="Fridge" CloseEventCallback="@EditFridgeItem_OnClose"></FridgeItemEditComponent>
+   <FridgeEditComponent @ref="EditFridge" Household="Fridge.Household" CloseEventCallback="@EditFridge_OnClose"></FridgeEditComponent>
 }

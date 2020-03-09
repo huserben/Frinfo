@@ -5,7 +5,9 @@ namespace Frinfo.Client.Services
 {
    public interface IFridgeDataService
    {
-      Task<Fridge> AddNewFridge(int householdId, string fridgeName);
+      Task<Fridge> AddNewFridge(Fridge fridge);
+
+      Task<bool> UpdateFridge(Fridge fridge);
 
       Task<bool> DeleteFridge(int householdId, int fridgeId);
 

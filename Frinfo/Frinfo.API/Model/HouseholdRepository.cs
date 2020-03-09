@@ -78,21 +78,43 @@ namespace Frinfo.API.Model
          return false;
       }
 
-      public async Task<Fridge> AddFridge(int householdId, string name)
+      public async Task<Fridge> AddFridge(int householdId, Fridge newFridge)
       {
          var household = GetHouseholdById(householdId);
 
          if (household != null)
          {
-            var fridge = new Fridge { Name = name, Items = new List<FridgeItem>() };
-            household.Fridges.Add(fridge);
+            newFridge.Items = new List<FridgeItem>();
+            newFridge.HouseholdId = householdId;
+            household.Fridges.Add(newFridge);
 
             await dbContext.SaveChangesAsync();
 
-            return fridge;
+            return newFridge;
          }
 
          return null;
+      }
+
+
+      public async Task<Fridge> UpdateFridge(int householdId, Fridge fridgeToUpdate)
+      {
+         var household = GetHouseholdById(householdId);
+         if (household == null)
+         {
+            return null;
+         }
+
+         var fridge = household.Fridges.FirstOrDefault(f => f.FridgeId == fridgeToUpdate.FridgeId);
+         if (fridge == null)
+         {
+            return null;
+         }
+
+         fridge.Name = fridgeToUpdate.Name;
+         await dbContext.SaveChangesAsync();
+
+         return fridge;
       }
 
       public Fridge GetFridgeById(int householdId, int fridgeId)

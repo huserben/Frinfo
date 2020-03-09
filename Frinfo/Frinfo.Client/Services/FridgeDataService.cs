@@ -17,9 +17,10 @@ namespace Frinfo.Client.Services
          this.localStorageHouseholdService = localStorageHouseholdService;
       }
 
-      public async Task<Fridge> AddNewFridge(int householdId,  string fridgeName)
+      public async Task<Fridge> AddNewFridge(Fridge fridge)
       {
-         var response = await httpClient.PostAsync($"api/household/{householdId}/fridge?name={fridgeName}", null);
+         var fridgeJson = new StringContent(JsonSerializer.Serialize(fridge), Encoding.UTF8, "application/json");
+         var response = await httpClient.PostAsync($"api/household/{fridge.HouseholdId}/fridge", fridgeJson);
 
          if (response.IsSuccessStatusCode)
          {
@@ -34,6 +35,14 @@ namespace Frinfo.Client.Services
          }
 
          return null;
+      }
+
+      public async Task<bool> UpdateFridge(Fridge fridge)
+      {
+         var fridgeJson = new StringContent(JsonSerializer.Serialize(fridge), Encoding.UTF8, "application/json");
+         var response = await httpClient.PutAsync($"api/household/{fridge.HouseholdId}/fridge", fridgeJson);
+
+         return response.IsSuccessStatusCode;
       }
 
       public async Task<bool> DeleteFridge(int householdId, int fridgeId)

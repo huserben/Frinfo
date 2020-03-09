@@ -1,12 +1,14 @@
 ﻿@page "/household/{HouseholdId}"
 @inherits HouseholdDetailBase
 
-<h3>Add new Fridge</h3>
 <div>
-   <form @onsubmit="OnAddNewFridge">
-      <input type="text" id="fridgeName" @bind-value="NewFridgeName" placeholder="Enter new Fridge Name" />
-      <button type="submit" disabled="@IsOffline">Add</button>
-   </form>
+   <h3 class="page-title">@Household.Name</h3>
+   @*<button disabled="@IsOffline" class="btn btn-light" @onclick="@OnEditFridgeTitle">
+         <i class="fas fa-edit" />
+      </button>
+      <button disabled="@IsOffline" class="btn btn-danger" @onclick="@OnRemoveFridge">
+         <i class="fas fa-trash" />
+      </button>*@
 </div>
 
 @if (Household == null)
@@ -15,28 +17,38 @@
 }
 else
 {
-   <h3>@Household.Name Details</h3>
-   
-      <div>
-         <table class="table">
-            <thead>
-               <tr>
-                  <th>Fridge</th>
-                  <th></th>
-                  <th></th>
-               </tr>
-            </thead>
-            <tbody>
 
-               @foreach (var fridge in Fridges)
-               {
-                  <tr>
-                     <td>@fridge.Name</td>
-                     <td><button @onclick="@(x => NavigateToFridge(fridge.FridgeId))">Details</button></td>
-                     <td><button @onclick="@(x => DeleteFridge(fridge))" disabled="@IsOffline">Delete Fridge</button></td>
-                  </tr>
-               }
-            </tbody>
-         </table>
-      </div>
+   <div>
+      <table class="table">
+         <thead>
+            <tr>
+               <th>Fridge</th>
+               <th></th>
+               <th></th>
+            </tr>
+         </thead>
+         <tbody>
+
+            @foreach (var fridge in Fridges)
+            {
+               <tr>
+                  <td>@fridge.Name</td>
+                  <td>
+                     <button @onclick="@(x => NavigateToFridge(fridge.FridgeId))" class="btn btn-primary table-btn">
+                        <i class="fas fa-eye" />
+                     </button>
+                  </td>
+                  <td>
+                     <button @onclick="@(x => DeleteFridge(fridge))" disabled="@IsOffline" class="btn btn-danger table-btn">
+                        <i class="fas fa-trash" />
+                     </button>
+                  </td>
+               </tr>
+            }
+         </tbody>
+      </table>
+   </div>
+
+   <button @onclick="@AddNewFridge" disabled="@IsOffline" class="btn btn-dark table-btn quick-add-btn">&nbsp;&nbsp;+&nbsp;&nbsp;</button>
+   <FridgeEditComponent @ref="EditFridge" Household="Household" CloseEventCallback="@AddFridge_OnClose"></FridgeEditComponent>
 }
