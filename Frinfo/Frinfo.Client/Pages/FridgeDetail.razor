@@ -2,13 +2,14 @@
 @using Frinfo.Shared
 @inherits FridgeDetailBase
 
+<h1 class="page-title">@Fridge.Name Details</h1>
+
 @if (Fridge == null)
 {
    <a>Loading...</a>
 }
 else
 {
-   <h3>@Fridge.Name Details</h3>
 
    <div>
       <table class="table">
@@ -36,8 +37,16 @@ else
                   <td>
                      <img src="@GetImageSource(item)" height="64" width="64" />
                   </td>
-                  <td><button @onclick="@(x => EditItem(item))" disabled="@IsOffline">Edit Item</button></td>
-                  <td><button @onclick="@(x => DeleteFridgeItem(item))" disabled="@IsOffline">Delete Item</button></td>
+                  <td>
+                     <button @onclick="@(x => EditItem(item))" disabled="@IsOffline" class="btn btn-primary table-btn">
+                        <i class="fas fa-edit" />
+                     </button>
+                  </td>
+                  <td>
+                     <button @onclick="@(x => DeleteFridgeItem(item))" disabled="@IsOffline" class="btn btn-danger table-btn">
+                        <i class="fas fa-trash" />
+                     </button>
+                  </td>
                </tr>
             }
          </tbody>
