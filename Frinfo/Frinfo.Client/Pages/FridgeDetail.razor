@@ -10,6 +10,7 @@
       <button disabled="@IsOffline" class="btn btn-danger" @onclick="@OnRemoveFridge">
          <i class="fas fa-trash" />
       </button>
+      <button @onclick="@AddFridgeItem" class="btn btn-dark table-btn quick-add-btn" disabled="@IsOffline"><i class="fas fa-plus"/></button>
    </div>
 
 @if (Fridge == null)
@@ -61,7 +62,6 @@ else
       </table>
    </div>
 
-   <button @onclick="@AddFridgeItem" class="btn btn-dark table-btn quick-add-btn" disabled="@IsOffline">&nbsp;&nbsp;+&nbsp;&nbsp;</button>
    <FridgeItemEditComponent @ref="EditFridgeItem" Fridge="Fridge" CloseEventCallback="@EditFridgeItem_OnClose"></FridgeItemEditComponent>
    <FridgeEditComponent @ref="EditFridge" Household="Fridge.Household" CloseEventCallback="@EditFridge_OnClose"></FridgeEditComponent>
 }
