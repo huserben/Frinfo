@@ -44,6 +44,6 @@ else
       </table>
    </div>
 
-   <button @onclick="@AddFridgeItem">&nbsp;&nbsp;+&nbsp;&nbsp;</button>
+   <button @onclick="@AddFridgeItem" class="btn btn-dark table-btn quick-add-btn">&nbsp;&nbsp;+&nbsp;&nbsp;</button>
    <FridgeItemEditComponent @ref="EditFridgeItem" Fridge="Fridge" CloseEventCallback="@EditFridgeItem_OnClose"></FridgeItemEditComponent>
 }

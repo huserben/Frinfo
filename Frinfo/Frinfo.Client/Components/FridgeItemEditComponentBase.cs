@@ -31,6 +31,27 @@ namespace Frinfo.Client.Components
       [Inject]
       public IFileReaderService FileReaderService { get; set; }
 
+      public string ImageSource
+      {
+         get
+         {
+            return $"data:image;base64,{Convert.ToBase64String(FridgeItem.ItemImage)}";
+         }
+      }
+
+      public string Title
+      {
+         get
+         {
+            if (FridgeItem.FridgeItemId == 0)
+            {
+               return "Add new Fridge Item";
+            }
+
+            return $"Edit {FridgeItem.Name}";
+         }
+      }
+
       public void Show()
       {
          ShowDialog = true;
