@@ -1,6 +1,7 @@
 ﻿using Frinfo.Shared;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -85,6 +86,14 @@ namespace Frinfo.Client.Services
          }
 
          return null;
+      }
+
+      public async Task<bool> UpdateHousehold(Household household)
+      {
+         var householdJson = new StringContent(JsonSerializer.Serialize(household), Encoding.UTF8, "application/json");
+         var response = await httpClient.PutAsync($"api/household", householdJson);
+
+         return response.IsSuccessStatusCode;
       }
    }
 }

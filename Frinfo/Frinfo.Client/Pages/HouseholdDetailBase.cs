@@ -42,6 +42,8 @@ namespace Frinfo.Client.Pages
 
       protected FridgeEditComponent EditFridge { get; set; }
 
+      protected HouseholdEditComponent EditHousehold { get; set; }
+
       public Task HandleAsync(OnlineStateChangedEvent message, CancellationToken cancellationToken)
       {
          IsOffline = !message.IsOnline;
@@ -73,12 +75,38 @@ namespace Frinfo.Client.Pages
             Fridges.Remove(fridge);
             StateHasChanged();
 
-            ToastService.ShowSuccess($"Removed {fridge.Name}");
+            ToastService.ShowInfo($"Removed {fridge.Name}");
          }
          else
          {
             ToastService.ShowError($"Failed to remove {fridge.Name}", "Delete Failed");
          }
+      }
+
+      protected async Task OnRemoveHousehold()
+      {
+         var removeSuccessful = await HouseholdDataService.DeleteHousehold(Household.HouseholdId);
+         if (removeSuccessful)
+         {
+            NavigationManager.NavigateTo("/");
+            ToastService.ShowInfo($"Successfully removed {Household.Name}");
+         }
+         else
+         {
+            ToastService.ShowError($"Could not remove {Household.Name}", "Delete failed");
+         }
+      }
+
+      protected void OnEditHousehold()
+      {
+         EditHousehold.Household = Household;
+         EditHousehold.Show();
+      }
+
+      protected async Task EditHousehold_OnClose()
+      {
+         Household = await HouseholdDataService.GetHouseholdById(int.Parse(HouseholdId));
+         StateHasChanged();
       }
 
       protected void AddFridge_OnClose()

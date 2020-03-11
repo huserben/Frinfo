@@ -59,6 +59,20 @@ namespace Frinfo.API.Model
          return newHousehold;
       }
 
+      public async Task<Household> UpdateHousehold(Household household)
+      {
+         var householdToUpdate = GetHouseholdById(household.HouseholdId);
+         if (householdToUpdate == null)
+         {
+            return null;
+         }
+
+         householdToUpdate.Name = household.Name;
+         await dbContext.SaveChangesAsync();
+
+         return householdToUpdate;
+      }
+
       public async Task<bool> DeleteFridgeById(int householdId, int fridgeId)
       {
          var household = GetHouseholdById(householdId);

@@ -79,6 +79,19 @@ namespace Frinfo.API.Controllers
          return Created($"api/household/{newHousehold.HouseholdId}", newHousehold);
       }
 
+      [HttpPut]
+      public async Task<IActionResult> UpdateHousehold([FromBody]Household household)
+      {
+         var updatedHousehold = await householdRepistory.UpdateHousehold(household);
+
+         if (updatedHousehold != null)
+         {
+            return NoContent();
+         }
+
+         return BadRequest();
+      }
+
       [HttpPost("{householdId}/fridge")]
       public async Task<IActionResult> AddNewFridgeAsync(int householdId, [FromBody]Fridge newFridge)
       {

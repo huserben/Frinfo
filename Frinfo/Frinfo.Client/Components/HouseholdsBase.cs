@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Frinfo.Client.Events;
 using System.Threading;
+using Blazored.Toast.Services;
 
 namespace Frinfo.Client.Components
 {
@@ -27,17 +28,18 @@ namespace Frinfo.Client.Components
       [Inject]
       public IHttpClient FrinfoHttpClient { get; set; }
 
+      [Inject]
+      public IToastService ToastService { get; set; }
+
       public string NewHouseholdName { get; set; }
 
       public string HouseholdCode { get; set; }
 
-      public bool SearchedForCode { get; set; }
-
-      public bool SearchSuccessful { get; set; }
-
       public bool IsOffline { get; private set; } = false;
 
       public List<Household> RecentHouseholds { get; } = new List<Household>();
+
+      protected HouseholdEditComponent EditHousehold { get; set; }
 
       public Task HandleAsync(OnlineStateChangedEvent message, CancellationToken cancellationToken)
       {
@@ -57,38 +59,27 @@ namespace Frinfo.Client.Components
          StateHasChanged();
       }
 
-      protected async Task OnAddNewHousehold()
-      {
-         if (string.IsNullOrEmpty(NewHouseholdName))
-         {
-            return;
-         }
-
-         var newHousehold = await HouseholdDataService.AddNewHousehold(NewHouseholdName);
-
-         if (newHousehold != null)
-         {
-            NavigateToHousehold(newHousehold.HouseholdId);
-         }
-      }
-
       protected async Task OnSearchForCode()
       {
-         if (RecentHouseholds.Any(h => h.HouseholdCode == HouseholdCode))
+         var alreadyAddedHousehold = RecentHouseholds.FirstOrDefault(h => h.HouseholdCode == HouseholdCode);
+         if (alreadyAddedHousehold != null)
          {
-            return;
+            NavigateToHousehold(alreadyAddedHousehold.HouseholdId);
          }
 
          var household = await HouseholdDataService.GetHouseholdByCode(HouseholdCode);
-         SearchedForCode = true;
-         SearchSuccessful = household != null;
+         
+         var searchSuccessful = household != null;
 
-         if (SearchSuccessful)
+         if (searchSuccessful)
          {
             RecentHouseholds.Insert(0, household);
+            NavigateToHousehold(household.HouseholdId);
          }
-
-         StateHasChanged();
+         else
+         {
+            ToastService.ShowError($"Could not find any household with code {HouseholdCode}");
+         }
       }
 
       protected void NavigateToHousehold(int householdId)
@@ -112,6 +103,20 @@ namespace Frinfo.Client.Components
          await LocalStorageHouseholdService.RemoveHousehold(household.HouseholdId);
 
          StateHasChanged();
+      }
+
+      protected void OnAddHousehold()
+      {
+         EditHousehold.Household = new Household();
+         EditHousehold.Show();
+      }
+
+      protected void EditHousehold_OnClose()
+      {
+         if (EditHousehold.Household != null)
+         {
+            NavigateToHousehold(EditHousehold.Household.HouseholdId);
+         }
       }
 
       private async Task FetchRecentHouseholds()

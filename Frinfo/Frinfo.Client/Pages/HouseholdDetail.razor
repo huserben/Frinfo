@@ -2,13 +2,13 @@
 @inherits HouseholdDetailBase
 
    <div>
-      <h3 class="page-title">@Household.Name</h3>
-      @*<button disabled="@IsOffline" class="btn btn-light" @onclick="@OnEditFridgeTitle">
+      <h3 class="page-title">@Household.Name (@Household.HouseholdCode)</h3>
+      <button disabled="@IsOffline" class="btn btn-light" @onclick="@OnEditHousehold">
          <i class="fas fa-edit" />
       </button>
-      <button disabled="@IsOffline" class="btn btn-danger" @onclick="@OnRemoveFridge">
+      <button disabled="@IsOffline" class="btn btn-danger" @onclick="@OnRemoveHousehold">
          <i class="fas fa-trash" />
-      </button>*@
+      </button>
       <button @onclick="@AddNewFridge" disabled="@IsOffline" class="btn btn-dark table-btn quick-add-btn"><i class="fas fa-plus"/></button>
    </div>
 
@@ -51,4 +51,5 @@ else
    </div>
 
    <FridgeEditComponent @ref="EditFridge" Household="Household" CloseEventCallback="@AddFridge_OnClose"></FridgeEditComponent>
+   <HouseholdEditComponent @ref="EditHousehold" CloseEventCallback="@EditHousehold_OnClose" />
 }

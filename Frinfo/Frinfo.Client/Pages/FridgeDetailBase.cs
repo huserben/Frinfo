@@ -80,7 +80,7 @@ namespace Frinfo.Client.Pages
          {
             FridgeItems.Remove(fridgeItem);
             StateHasChanged();
-            ToastService.ShowSuccess($"Successfully removed {fridgeItem.Name}");
+            ToastService.ShowInfo($"Successfully removed {fridgeItem.Name}");
          }
          else
          {
@@ -118,7 +118,7 @@ namespace Frinfo.Client.Pages
          if (wasRemoveSuccessful)
          { 
             NavigationManager.NavigateTo($"household/{Fridge.HouseholdId}");
-            ToastService.ShowSuccess($"Removed {Fridge.Name}");
+            ToastService.ShowInfo($"Removed {Fridge.Name}");
          }
          else
          {

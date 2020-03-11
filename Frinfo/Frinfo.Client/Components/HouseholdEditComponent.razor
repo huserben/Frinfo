@@ -1,0 +1,33 @@
+﻿@inherits HouseholdEditComponentBase
+
+@if (ShowDialog)
+{
+   <div class="modal fade show d-block" id="exampleModal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+         <div class="modal-content">
+            <div class="modal-header">
+               <h5 class="modal-title" id="titleLabel">@Title</h5>
+               <button type="button" class="close" data-dismiss="modal" aria-label="Close" @onclick="OnCancelEditItem">
+                  <span aria-hidden="true">&times;</span>
+               </button>
+            </div>
+            <div class="modal-body">
+               <EditForm Model="@Household" OnValidSubmit="@AddHousehold">
+                  <div class="form-group">
+                     <InputText id="householdName" class="form-control" @bind-Value="@Household.Name" placeholder="Enter Household Name" />
+                  </div>
+                  @if (!string.IsNullOrEmpty(Household.HouseholdCode))
+                  {
+                     <div class="form-group">
+                        <label for="householdCode">Code</label>
+                        <InputText disabled="true" id="householdCode" class="form-control" @bind-Value="@Household.HouseholdCode" />
+                     </div>
+                  }
+                  <button type="submit" class="btn btn-primary">Save</button>
+                  <a class="btn btn-outline-primary" @onclick="@OnCancelEditItem">Close</a>
+               </EditForm>
+            </div>
+         </div>
+      </div>
+   </div>
+}

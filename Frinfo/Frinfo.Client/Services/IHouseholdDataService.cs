@@ -13,5 +13,7 @@ namespace Frinfo.Client.Services
       Task<bool> DeleteHousehold(int householdId);
 
       Task<Household> AddNewHousehold(string newHouseholdName);
+
+      Task<bool> UpdateHousehold(Household household);
    }
 }

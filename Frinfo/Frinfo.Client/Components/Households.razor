@@ -1,35 +1,15 @@
 ﻿@inherits HouseholdsBase
 
-<h3>Add new Household</h3>
 <div>
-   <form @onsubmit="OnAddNewHousehold">
-      <input type="text" id="householdName" @bind-value="NewHouseholdName" placeholder="Enter new Household Name" />
-      <button type="submit" disabled="@IsOffline">Add</button>
-   </form>
-</div>
+   <h3 class="page-title">Frinfo</h3>
+   <button @onclick="@OnAddHousehold" disabled="@IsOffline" class="btn btn-dark table-btn quick-add-btn"><i class="fas fa-plus" /></button>
 
-<h3>Find your Household</h3>
-
-<div>
-   <form @onsubmit="OnSearchForCode">
+   <div>
       <input type="text" id="householdcode" @bind-value="HouseholdCode" placeholder="Enter Household Code" />
-      <button type="submit" disabled="@IsOffline">Search</button>
-   </form>
+      <button @onclick="@OnSearchForCode" disabled="@IsOffline" class="btn btn-dark table-btn quick-add-btn"><i class="fas fa-search" /></button>
+   </div>
 </div>
 
-@if (SearchedForCode)
-{
-<div>
-   @if (!SearchSuccessful)
-   {
-      <a>No Household found with that code</a>
-   }
-   else
-   {
-      <a>Success</a>
-   }
-</div>
-}
 <div>
    <table class="table">
       <thead>
@@ -44,14 +24,28 @@
 
          @foreach (var household in RecentHouseholds)
          {
-         <tr>
-            <td>@household.Name</td>
-            <td>@household.HouseholdCode</td>
-            <td><button @onclick="@(x => NavigateToHousehold(household.HouseholdId))">Details</button></td>
-            <td><button @onclick="@(x => RemoveFromRecentList(household))">Remove From Recent List</button></td>
-            <td><button @onclick="@(x => DeleteHousehold(household))" disabled="@IsOffline">Delete Household</button></td>
-         </tr>
+            <tr>
+               <td>@household.Name</td>
+               <td>@household.HouseholdCode</td>
+               <td>
+                  <button @onclick="@(x => NavigateToHousehold(household.HouseholdId))" class="btn btn-primary table-btn">
+                        <i class="fas fa-eye" />
+                     </button>
+               </td>
+               <td>
+                  <button @onclick="@(x => RemoveFromRecentList(household))" class="btn btn-primary table-btn">
+                     <i class="fas fa-unlink"></i>
+                  </button>
+               </td>
+               <td>
+                  <button @onclick="@(x => DeleteHousehold(household))" disabled="@IsOffline" class="btn btn-primary table-btn">
+                     <i class="fas fa-trash" />
+                  </button>
+               </td>
+            </tr>
          }
       </tbody>
    </table>
 </div>
+
+<HouseholdEditComponent @ref="EditHousehold" CloseEventCallback="@EditHousehold_OnClose" />
