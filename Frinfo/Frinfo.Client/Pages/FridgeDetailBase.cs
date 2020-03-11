@@ -10,6 +10,7 @@ using Caliburn.Micro;
 using Frinfo.Client.Events;
 using System.Threading;
 using Frinfo.Client.Components;
+using Blazored.Toast.Services;
 
 namespace Frinfo.Client.Pages
 {
@@ -27,6 +28,9 @@ namespace Frinfo.Client.Pages
 
       [Inject]
       public IEventAggregator EventAggregator { get; set; }
+
+      [Inject]
+      public IToastService ToastService { get; set; }
 
       [Inject]
       public NavigationManager NavigationManager { get; set; }
@@ -70,12 +74,17 @@ namespace Frinfo.Client.Pages
 
       protected async Task DeleteFridgeItem(FridgeItem fridgeItem)
       {
-         var removedItem = await FridgeDataService.DeleteFridgeItem(Fridge.HouseholdId, Fridge.FridgeId, fridgeItem.FridgeItemId);
+         var wasRemoveSuccessful = await FridgeDataService.DeleteFridgeItem(Fridge.HouseholdId, Fridge.FridgeId, fridgeItem.FridgeItemId);
 
-         if (removedItem)
+         if (wasRemoveSuccessful)
          {
             FridgeItems.Remove(fridgeItem);
             StateHasChanged();
+            ToastService.ShowSuccess($"Successfully removed {fridgeItem.Name}");
+         }
+         else
+         {
+            ToastService.ShowError($"Could not remove {fridgeItem.Name}", "Delete Failed");
          }
       }
 
@@ -104,8 +113,17 @@ namespace Frinfo.Client.Pages
 
       protected async void OnRemoveFridge()
       {
-         await FridgeDataService.DeleteFridge(Fridge.HouseholdId, Fridge.FridgeId);
-         NavigationManager.NavigateTo($"household/{Fridge.HouseholdId}");
+         var wasRemoveSuccessful = await FridgeDataService.DeleteFridge(Fridge.HouseholdId, Fridge.FridgeId);
+
+         if (wasRemoveSuccessful)
+         { 
+            NavigationManager.NavigateTo($"household/{Fridge.HouseholdId}");
+            ToastService.ShowSuccess($"Removed {Fridge.Name}");
+         }
+         else
+         {
+            ToastService.ShowError($"Failed to remove {Fridge.Name}", "Delete Failed");
+         }
       }
 
       protected async void EditFridge_OnClose()

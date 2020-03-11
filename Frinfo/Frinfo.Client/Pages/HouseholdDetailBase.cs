@@ -1,4 +1,5 @@
-﻿using Caliburn.Micro;
+﻿using Blazored.Toast.Services;
+using Caliburn.Micro;
 using Frinfo.Client.Components;
 using Frinfo.Client.Events;
 using Frinfo.Client.Services;
@@ -23,6 +24,9 @@ namespace Frinfo.Client.Pages
 
       [Inject]
       public IHttpClient FrinfoHttpClient { get; set; }
+
+      [Inject]
+      public IToastService ToastService { get; set; }
 
       [Inject]
       public NavigationManager NavigationManager { get; set; }
@@ -62,12 +66,18 @@ namespace Frinfo.Client.Pages
 
       protected async Task DeleteFridge(Fridge fridge)
       {
-         var removedFridge = await FridgeDataService.DeleteFridge(Household.HouseholdId, fridge.FridgeId);
+         var wasRemoveSuccessfull = await FridgeDataService.DeleteFridge(Household.HouseholdId, fridge.FridgeId);
 
-         if (removedFridge)
+         if (wasRemoveSuccessfull)
          {
             Fridges.Remove(fridge);
             StateHasChanged();
+
+            ToastService.ShowSuccess($"Removed {fridge.Name}");
+         }
+         else
+         {
+            ToastService.ShowError($"Failed to remove {fridge.Name}", "Delete Failed");
          }
       }
 
