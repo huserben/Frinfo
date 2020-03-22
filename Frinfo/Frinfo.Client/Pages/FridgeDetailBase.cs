@@ -138,6 +138,11 @@ namespace Frinfo.Client.Pages
          EditFridgeItem.Show();
       }
 
+      protected void BackToHousehold()
+      {
+         NavigationManager.NavigateTo($"household/{Fridge.HouseholdId}");
+      }
+
       private async Task ReloadFridgeItems()
       {
          FridgeItems.Clear();

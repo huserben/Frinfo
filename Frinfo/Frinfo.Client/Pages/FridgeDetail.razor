@@ -10,7 +10,9 @@
       <button disabled="@IsOffline" class="btn btn-danger" @onclick="@OnRemoveFridge">
          <i class="fas fa-trash" />
       </button>
-      <button @onclick="@AddFridgeItem" class="btn btn-dark table-btn quick-add-btn" disabled="@IsOffline"><i class="fas fa-plus"/></button>
+      <button @onclick="@AddFridgeItem" class="btn btn-dark table-btn quick-add-btn" disabled="@IsOffline"><i class="fas fa-plus" /></button>
+
+      <button @onclick="@BackToHousehold" class="btn btn-light" disabled="@IsOffline"><i class="fas fa-long-arrow-alt-left" /></button>
    </div>
 
 @if (Fridge == null)
