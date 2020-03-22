@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 
@@ -12,6 +13,8 @@ namespace Frinfo.Client.Services
    public class LocalStorageHouseholdService : ILocalStorageHouseholdService
    {
       private const string RecentHouseholdsKey = "RecentHouseholds";
+
+      private readonly SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1, 1);
 
       private readonly ILocalStorageService localStorageService;
       private readonly ILogger<LocalStorageHouseholdService> logger;
@@ -23,7 +26,7 @@ namespace Frinfo.Client.Services
          this.localStorageService = localStorageService;
          this.logger = logger;
 
-         var storageTimer = new Timer(10000);
+         var storageTimer = new System.Timers.Timer(10000);
          storageTimer.AutoReset = true;
          storageTimer.Elapsed += OnStorageTimerHasElapsed;
          storageTimer.Enabled = true;
@@ -76,6 +79,41 @@ namespace Frinfo.Client.Services
       {
          var householdsDictionary = await GetStoredHouseholds();
          return householdsDictionary.Values;
+      }
+
+      public async Task<IEnumerable<FridgeItem>> GetLocallyStoredFridgeIems(int? householdId = null, int? fridgeId = null)
+      {
+         logger.LogDebug("Getting all locally stored fridge items");
+
+         var fridgeItems = new List<FridgeItem>();
+
+         var householdsDictionary = await GetStoredHouseholds();
+
+         IEnumerable<Household> households = householdsDictionary.Values;
+
+         if (householdId.HasValue)
+         {
+            logger.LogDebug($"Household Parameter specified: {householdId.Value}");
+            households = households.Where(h => h.HouseholdId == householdId.Value);
+         }
+
+         foreach (var household in households)
+         {
+            IEnumerable<Fridge> fridges = household.Fridges;
+
+            if (fridgeId.HasValue)
+            {
+               logger.LogDebug($"Fridge Parameter specified: {fridgeId.Value}");
+               fridges = fridges.Where(x => x.FridgeId == fridgeId.Value);
+            }
+
+            foreach (var fridge in fridges)
+            {
+               fridgeItems.AddRange(fridge.Items);
+            }
+         }
+
+         return fridgeItems;
       }
 
       public async Task<bool> RemoveFridge(int householdId, int fridgeId)
@@ -158,31 +196,40 @@ namespace Frinfo.Client.Services
 
       private async Task<Dictionary<int, Household>> GetStoredHouseholds()
       {
-         if (storedHouseholds == null)
+         await semaphoreSlim.WaitAsync();
+
+         try
          {
-            logger.LogDebug("Loading data from local storage");
-
-            storedHouseholds = new Dictionary<int, Household>();
-
-            try
+            if (storedHouseholds == null)
             {
-               var containsFavoriteHouseholds = await localStorageService.ContainKeyAsync(RecentHouseholdsKey);
-               if (containsFavoriteHouseholds)
+               logger.LogDebug("Loading data from local storage");
+
+               storedHouseholds = new Dictionary<int, Household>();
+
+               try
                {
-                  var householdsAsJson = await localStorageService.GetItemAsync<List<string>>(RecentHouseholdsKey);
-
-                  foreach (var household in householdsAsJson.Select(h => JsonSerializer.Deserialize<Household>(h)))
+                  var containsFavoriteHouseholds = await localStorageService.ContainKeyAsync(RecentHouseholdsKey);
+                  if (containsFavoriteHouseholds)
                   {
-                     logger.LogDebug($"Loaded household {household.HouseholdId}");
+                     var householdsAsJson = await localStorageService.GetItemAsync<List<string>>(RecentHouseholdsKey);
 
-                     storedHouseholds.Add(household.HouseholdId, household);
+                     foreach (var household in householdsAsJson.Select(h => JsonSerializer.Deserialize<Household>(h)))
+                     {
+                        logger.LogDebug($"Loaded household {household.HouseholdId}");
+
+                        storedHouseholds.Add(household.HouseholdId, household);
+                     }
                   }
                }
+               catch
+               {
+                  logger.LogDebug("Error during loading of local storage - initializing empty.");
+               }
             }
-            catch
-            {
-               logger.LogDebug("Error during loading of local storage - initializing empty.");
-            }
+         }
+         finally
+         {
+            semaphoreSlim.Release();
          }
 
          return storedHouseholds;

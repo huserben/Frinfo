@@ -1,0 +1,31 @@
+﻿@inherits DueFoodBase
+
+<div>
+   <h1 class="page-title">About to Expire</h1>
+</div>
+
+<div>
+   <table class="table">
+      <thead>
+         <tr>
+            <th>Item</th>
+            <th>ExpirationDate</th>
+            <th>Image</th>
+            <th></th>
+         </tr>
+      </thead>
+      <tbody>
+
+         @foreach (var item in ItemsAboutToExpire)
+         {
+            <tr>
+               <td>@item.Name</td>
+               <td>@item.ExpirationDate.Value.ToShortDateString()</td>
+               <td>
+                  <img src="@GetImageSource(item)" height="64" width="64" />
+               </td>
+            </tr>
+         }
+      </tbody>
+   </table>
+</div>

@@ -7,6 +7,8 @@ namespace Frinfo.Client.Services
    public interface ILocalStorageHouseholdService
    {
       Task<IEnumerable<Household>> GetLocallyStoredHouseholds();
+      
+      Task<IEnumerable<FridgeItem>> GetLocallyStoredFridgeIems(int? householdId = null, int? fridgeId = null);
 
       Task AddOrUpdateHousehold(Household household);
 

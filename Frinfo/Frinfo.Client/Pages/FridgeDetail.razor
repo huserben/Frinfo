@@ -63,7 +63,9 @@ else
          </tbody>
       </table>
    </div>
-
+   <div>
+      <Frinfo.Client.Components.DueFood HouseholdId="@int.Parse(HouseholdId)" FridgeId="@int.Parse(FridgeId)" />
+   </div>
    <FridgeItemEditComponent @ref="EditFridgeItem" Fridge="Fridge" CloseEventCallback="@EditFridgeItem_OnClose"></FridgeItemEditComponent>
    <FridgeEditComponent @ref="EditFridge" Household="Fridge.Household" CloseEventCallback="@EditFridge_OnClose"></FridgeEditComponent>
 }
